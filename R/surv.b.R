@@ -46,6 +46,9 @@ survClass <- R6::R6Class(
             if (is.null(eventVarName) || is.null(elapsedVarName))
                 return()
             
+            if (nrow(self$data) == 0)
+                stop('Data contains no (complete) rows')
+            
             elapsed <- toNumeric(self$data[[elapsedVarName]])
             event   <- ifelse(self$data[[eventVarName]] == self$options$eventLevel, 1, 0)
             
@@ -57,7 +60,7 @@ survClass <- R6::R6Class(
             data <- na.omit(data)
             
             if (nrow(data) == 0)
-                stop('Data contains now rows')
+                stop('Data contains no (complete) rows')
             
             s <- survival::survfit(formula=survival::Surv(elapsed, event) ~ group, data=data)
             summary <- self$results$summary
