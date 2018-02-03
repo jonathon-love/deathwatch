@@ -1,0 +1,20 @@
+---
+title: Death Watch
+name: deathwatch
+version: 1.0.0
+jms: '1.0'
+authors:
+  - Jonathon Love
+maintainer: Jonathon Love
+date: '2018-02-03'
+type: R
+description: Survival analysis
+analyses:
+  - title: Survival Analysis
+    name: surv
+    ns: deathwatch
+    menuGroup: Survival
+    menuSubgroup: Death Watch
+    menuTitle: Survival Analysis
+
+...

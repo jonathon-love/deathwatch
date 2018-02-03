@@ -1,0 +1,43 @@
+---
+name:  surv
+title: Survival Analysis
+menuGroup: Survival
+menuSubgroup: Death Watch
+version: '1.0.0'
+jas: '1.1'
+
+options:
+    - name: data
+      type: Data
+
+    - name: event
+      title: Event
+      type: Variable
+      suggested: [ nominal ]
+    
+    - name: eventLevel
+      title: Event level
+      type: Level
+      variable: (event)
+
+    - name: elapsed
+      title: Time Elapsed
+      type: Variable
+      suggested: [ continuous ]
+    
+    - name: groups
+      title: Group
+      type: Variable
+      suggested: [ nominal ]
+      permitted: [ nominal, ordinal, nominaltext ]
+
+    - name: ci
+      title: Confidence intervals
+      type: Bool
+      default: false
+
+    - name: cens
+      title: Censored events
+      type: Bool
+      default: true
+...

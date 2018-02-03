@@ -1,0 +1,147 @@
+
+
+#' @importFrom R6 R6Class
+#' @importFrom jmvcore toNumeric
+survClass <- R6::R6Class(
+    "survClass",
+    inherit = survBase,
+    private = list(
+        .init = function() {
+            
+            groups <- private$.groups()
+            
+            summary <- self$results$summary
+            for (group in groups)
+                summary$addRow(rowKey=group, list(group=group))
+            
+            tests <- self$results$tests
+            if (length(groups) >= 2) {
+                comparisons <- combn(groups, 2)
+                for (i in seq_len(ncol(comparisons))) {
+                    key = comparisons[,i]
+                    tests$addRow(rowKey=key)
+                }
+            }
+            else {
+                tests$setVisible(FALSE)
+            }
+        },
+        .groups = function() {
+            if (is.null(self$options$groups))
+                group <- NULL
+            else
+                group <- self$data[[self$options$groups]]
+            
+            groups <- levels(group)
+            if (length(groups) == 0)
+                groups = ''
+            
+            groups
+        },
+        .run = function() {
+            
+            eventVarName <- self$options$event
+            elapsedVarName <- self$options$elapsed
+            
+            if (is.null(eventVarName) || is.null(elapsedVarName))
+                return()
+            
+            elapsed <- toNumeric(self$data[[elapsedVarName]])
+            event   <- ifelse(self$data[[eventVarName]] == self$options$eventLevel, 1, 0)
+            
+            group <- 1
+            if ( ! is.null(self$options$groups))
+                group <- as.factor(self$data[[self$options$groups]])
+            
+            data <- data.frame(elapsed=elapsed, event=event, group=group)
+            data <- na.omit(data)
+            
+            if (nrow(data) == 0)
+                stop('Data contains now rows')
+            
+            s <- survival::survfit(formula=survival::Surv(elapsed, event) ~ group, data=data)
+            summary <- self$results$summary
+            
+            for (i in seq_len(nrow(s))) {
+                g <- s[i]
+                n <- g$n
+                nevents <- sum(g$n.event)
+                ncensor <- sum(g$n.censor)
+                
+                summary$setRow(rowNo=i, list(
+                    `count[1]`=nevents, `n[1]`=n, `prop[1]`=nevents/n,
+                    `count[2]`=ncensor, `n[2]`=n, `prop[2]`=ncensor/n))
+            }
+            
+            summary$setStatus('complete')
+            
+            self$results$sc$setState(s)
+            self$results$hf$setState(s)
+            
+            tt <- self$results$tests
+            if (tt$isNotFilled()) {
+            
+                groups <- private$.groups()
+                
+                if (length(groups) >= 2) {
+                    groupsData <- list()
+                    for (group in groups)
+                        groupsData[[group]] <- subset(data, subset=data$group == group, select=c('elapsed', 'event'))
+                }
+                
+                for (pair in tt$rowKeys) {
+                    
+                    private$.checkpoint()
+                    
+                    x <- groupsData[[pair[1]]]
+                    y <- groupsData[[pair[2]]]
+                    row <- list()
+                    for (i in 1:4) {
+                        test <- c('logrank', 'tarone-ware', 'gehan', 'peto-peto')[i]
+                        result <- EnvStats::twoSampleLinearRankTestCensored(
+                            x = x$elapsed,
+                            x.censored = ! x$event,
+                            y = y$elapsed,
+                            y.censored = ! y$event,
+                            censoring.side = 'right')
+                        
+                        row[[paste0('z[', i, ']')]] <- result$statistic['z']
+                        row[[paste0('p[', i, ']')]] <- result$p.value
+                    }
+                    
+                    tt$setRow(rowKey=pair, values=row)
+                }
+            }
+        },
+        .plot=function(image, theme, ggtheme, ...) {
+            
+            state <- image$state
+            if (is.null(state))
+                return(FALSE)
+            
+            if (identical(image, self$results$sc)) {
+                fun <- NULL
+                ylab <- 'Survival'
+            } else {
+                fun <- 'cumhaz'
+                ylab <- 'Cumulative Hazard'
+            }
+            
+            plot <- ggfortify:::autoplot.survfit(
+                object=state,
+                fun=fun,
+                xlab='Elapsed',
+                ylab=ylab,
+                surv.size = 1,
+                censor.size = 8,
+                censor.alpha = 0.8,
+                conf.int=self$options$ci,
+                censor=self$options$cens)
+            
+            plot <- plot + ggtheme
+            
+            print(plot)
+            
+            return(TRUE)
+        })
+)
