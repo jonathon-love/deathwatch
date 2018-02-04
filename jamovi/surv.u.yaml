@@ -31,13 +31,20 @@ children:
             maxItemCount: 1
             isTarget: true
   - type: Label
-    label: Plot options
+    label: Plots
     margin: large
     children:
       - type: LayoutBox
         margin: small
         children:
           - type: CheckBox
-            name: ci
+            name: sc
+            children:
+              - type: CheckBox
+                name: ci
+              - type: CheckBox
+                name: cens
           - type: CheckBox
-            name: cens
+            name: hf
+          - type: CheckBox
+            name: chf

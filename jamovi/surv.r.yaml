@@ -18,34 +18,21 @@ items:
           type: text
           content: ($key)
           visible: (groups)
-        - name: event[1]
-          title: ''
-          type: text
-          content: Event
-        - name: count[1]
-          title: Count
+        - name: censored
+          title: Censored
           type: integer
-        - name: n[1]
+        - name: events
+          title: Events
+          type: integer
+        - name: n
           title: N
           type: integer
-        - name: prop[1]
+        - name: prop
           title: Proportion
           type: number
           format: pc
-        - name: event[2]
-          title: ''
-          type: text
-          content: Censored
-        - name: count[2]
-          title: Count
-          type: integer
-        - name: n[2]
-          title: N
-          type: integer
-        - name: prop[2]
-          title: Proportion
-          type: number
-          format: pc
+        - name: median
+          title: Median
     
     - name: tests
       title: Tests
@@ -100,15 +87,42 @@ items:
     - name: sc
       title: Survival Curve
       type: Image
+      visible: (sc)
       width: 600
       height: 400
       renderFun: .plot
+      clearWith:
+        - event
+        - eventLevel
+        - elapsed
+        - groups
+        - cens
+        - ci
     
     - name: hf
-      title: Cumulative Hazard Function
+      title: Hazard Function
       type: Image
+      visible: (hf)
       width: 600
       height: 400
       renderFun: .plot
+      clearWith:
+        - event
+        - eventLevel
+        - elapsed
+        - groups
+    
+    - name: chf
+      title: Cumulative Hazard Function
+      type: Image
+      visible: (chf)
+      width: 600
+      height: 400
+      renderFun: .plot
+      clearWith:
+        - event
+        - eventLevel
+        - elapsed
+        - groups
 
 ...

@@ -10,6 +10,9 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
             eventLevel = NULL,
             elapsed = NULL,
             groups = NULL,
+            sc = TRUE,
+            hf = FALSE,
+            chf = FALSE,
             ci = FALSE,
             cens = TRUE, ...) {
 
@@ -42,6 +45,18 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                     "nominal",
                     "ordinal",
                     "nominaltext"))
+            private$..sc <- jmvcore::OptionBool$new(
+                "sc",
+                sc,
+                default=TRUE)
+            private$..hf <- jmvcore::OptionBool$new(
+                "hf",
+                hf,
+                default=FALSE)
+            private$..chf <- jmvcore::OptionBool$new(
+                "chf",
+                chf,
+                default=FALSE)
             private$..ci <- jmvcore::OptionBool$new(
                 "ci",
                 ci,
@@ -55,6 +70,9 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
             self$.addOption(private$..eventLevel)
             self$.addOption(private$..elapsed)
             self$.addOption(private$..groups)
+            self$.addOption(private$..sc)
+            self$.addOption(private$..hf)
+            self$.addOption(private$..chf)
             self$.addOption(private$..ci)
             self$.addOption(private$..cens)
         }),
@@ -63,6 +81,9 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
         eventLevel = function() private$..eventLevel$value,
         elapsed = function() private$..elapsed$value,
         groups = function() private$..groups$value,
+        sc = function() private$..sc$value,
+        hf = function() private$..hf$value,
+        chf = function() private$..chf$value,
         ci = function() private$..ci$value,
         cens = function() private$..cens$value),
     private = list(
@@ -70,6 +91,9 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
         ..eventLevel = NA,
         ..elapsed = NA,
         ..groups = NA,
+        ..sc = NA,
+        ..hf = NA,
+        ..chf = NA,
         ..ci = NA,
         ..cens = NA)
 )
@@ -80,7 +104,8 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
         summary = function() private$.items[["summary"]],
         tests = function() private$.items[["tests"]],
         sc = function() private$.items[["sc"]],
-        hf = function() private$.items[["hf"]]),
+        hf = function() private$.items[["hf"]],
+        chf = function() private$.items[["chf"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -105,41 +130,25 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                         `content`="($key)", 
                         `visible`="(groups)"),
                     list(
-                        `name`="event[1]", 
-                        `title`="", 
-                        `type`="text", 
-                        `content`="Event"),
-                    list(
-                        `name`="count[1]", 
-                        `title`="Count", 
+                        `name`="censored", 
+                        `title`="Censored", 
                         `type`="integer"),
                     list(
-                        `name`="n[1]", 
+                        `name`="events", 
+                        `title`="Events", 
+                        `type`="integer"),
+                    list(
+                        `name`="n", 
                         `title`="N", 
                         `type`="integer"),
                     list(
-                        `name`="prop[1]", 
+                        `name`="prop", 
                         `title`="Proportion", 
                         `type`="number", 
                         `format`="pc"),
                     list(
-                        `name`="event[2]", 
-                        `title`="", 
-                        `type`="text", 
-                        `content`="Censored"),
-                    list(
-                        `name`="count[2]", 
-                        `title`="Count", 
-                        `type`="integer"),
-                    list(
-                        `name`="n[2]", 
-                        `title`="N", 
-                        `type`="integer"),
-                    list(
-                        `name`="prop[2]", 
-                        `title`="Proportion", 
-                        `type`="number", 
-                        `format`="pc"))))
+                        `name`="median", 
+                        `title`="Median"))))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="tests",
@@ -208,16 +217,43 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 options=options,
                 name="sc",
                 title="Survival Curve",
+                visible="(sc)",
                 width=600,
                 height=400,
-                renderFun=".plot"))
+                renderFun=".plot",
+                clearWith=list(
+                    "event",
+                    "eventLevel",
+                    "elapsed",
+                    "groups",
+                    "cens",
+                    "ci")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="hf",
-                title="Cumulative Hazard Function",
+                title="Hazard Function",
+                visible="(hf)",
                 width=600,
                 height=400,
-                renderFun=".plot"))}))
+                renderFun=".plot",
+                clearWith=list(
+                    "event",
+                    "eventLevel",
+                    "elapsed",
+                    "groups")))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="chf",
+                title="Cumulative Hazard Function",
+                visible="(chf)",
+                width=600,
+                height=400,
+                renderFun=".plot",
+                clearWith=list(
+                    "event",
+                    "eventLevel",
+                    "elapsed",
+                    "groups")))}))
 
 survBase <- if (requireNamespace('jmvcore')) R6::R6Class(
     "survBase",
@@ -246,6 +282,9 @@ survBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #' @param eventLevel .
 #' @param elapsed .
 #' @param groups .
+#' @param sc .
+#' @param hf .
+#' @param chf .
 #' @param ci .
 #' @param cens .
 #' @return A results object containing:
@@ -254,6 +293,7 @@ survBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #'   \code{results$tests} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$sc} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$hf} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$chf} \tab \tab \tab \tab \tab an image \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
@@ -269,6 +309,9 @@ surv <- function(
     eventLevel,
     elapsed,
     groups,
+    sc = TRUE,
+    hf = FALSE,
+    chf = FALSE,
     ci = FALSE,
     cens = TRUE) {
 
@@ -280,6 +323,9 @@ surv <- function(
         eventLevel = eventLevel,
         elapsed = elapsed,
         groups = groups,
+        sc = sc,
+        hf = hf,
+        chf = chf,
         ci = ci,
         cens = cens)
 

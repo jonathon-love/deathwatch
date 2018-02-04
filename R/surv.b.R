@@ -63,23 +63,35 @@ survClass <- R6::R6Class(
                 stop('Data contains no (complete) rows')
             
             s <- survival::survfit(formula=survival::Surv(elapsed, event) ~ group, data=data)
-            summary <- self$results$summary
+            sTable <- summary(s)$table
+            st <- self$results$summary
             
             for (i in seq_len(nrow(s))) {
-                g <- s[i]
-                n <- g$n
-                nevents <- sum(g$n.event)
-                ncensor <- sum(g$n.censor)
+                if (nrow(s) == 1)
+                    g <- sTable
+                else
+                    g <- sTable[i,]
+                nevents <- sum(g['events'])
+                n <- g['n.max']
+                ncensor <- n - nevents
+                median <- g['median']
+                mean <- g['*rmean']
+                prop <- nevents / n
                 
-                summary$setRow(rowNo=i, list(
-                    `count[1]`=nevents, `n[1]`=n, `prop[1]`=nevents/n,
-                    `count[2]`=ncensor, `n[2]`=n, `prop[2]`=ncensor/n))
+                st$setRow(rowNo=i, list(
+                    censored=ncensor,
+                    events=nevents,
+                    n=n,
+                    prop=nevents/n,
+                    median=median,
+                    mean=mean))
             }
             
-            summary$setStatus('complete')
+            st$setStatus('complete')
             
             self$results$sc$setState(s)
             self$results$hf$setState(s)
+            self$results$chf$setState(s)
             
             tt <- self$results$tests
             if (tt$isNotFilled()) {
@@ -123,11 +135,20 @@ survClass <- R6::R6Class(
                 return(FALSE)
             
             if (identical(image, self$results$sc)) {
-                fun <- NULL
                 ylab <- 'Survival'
+                fun <- NULL
+                cens <- self$options$cens
+                ci <- self$options$ci
+            } else if (identical(image, self$results$hf)) {
+                ylab <- 'Hazard Function'
+                fun <- 'event'
+                cens <- FALSE
+                ci <- FALSE
             } else {
-                fun <- 'cumhaz'
                 ylab <- 'Cumulative Hazard'
+                fun <- 'cumhaz'
+                cens <- FALSE
+                ci <- FALSE
             }
             
             plot <- ggfortify:::autoplot.survfit(
@@ -138,8 +159,8 @@ survClass <- R6::R6Class(
                 surv.size = 1,
                 censor.size = 8,
                 censor.alpha = 0.8,
-                conf.int=self$options$ci,
-                censor=self$options$cens)
+                conf.int=ci,
+                censor=cens)
             
             plot <- plot + ggtheme
             

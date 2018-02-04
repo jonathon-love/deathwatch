@@ -30,6 +30,21 @@ options:
       type: Variable
       suggested: [ nominal ]
       permitted: [ nominal, ordinal, nominaltext ]
+    
+    - name: sc
+      title: Survival curve
+      type: Bool
+      default: true
+    
+    - name: hf
+      title: Hazard function
+      type: Bool
+      default: false
+    
+    - name: chf
+      title: Cumulative hazard function
+      type: Bool
+      default: false
 
     - name: ci
       title: Confidence intervals
