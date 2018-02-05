@@ -113,6 +113,9 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 options=options,
                 name="",
                 title="Survival Analysis")
+            self$add(jmvcore::Preformatted$new(
+                options=options,
+                name="debug"))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="summary",
@@ -189,6 +192,30 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                         `title`="", 
                         `type`="text", 
                         `content`="Peto-Peto"),
+                    list(
+                        `name`="nu[1]", 
+                        `title`="\u03BD"),
+                    list(
+                        `name`="nu[2]", 
+                        `title`="\u03BD"),
+                    list(
+                        `name`="nu[3]", 
+                        `title`="\u03BD"),
+                    list(
+                        `name`="nu[4]", 
+                        `title`="\u03BD"),
+                    list(
+                        `name`="nuse[1]", 
+                        `title`="SE"),
+                    list(
+                        `name`="nuse[2]", 
+                        `title`="SE"),
+                    list(
+                        `name`="nuse[3]", 
+                        `title`="SE"),
+                    list(
+                        `name`="nuse[4]", 
+                        `title`="SE"),
                     list(
                         `name`="z[1]", 
                         `title`="z"),

@@ -100,8 +100,10 @@ survClass <- R6::R6Class(
                 
                 if (length(groups) >= 2) {
                     groupsData <- list()
-                    for (group in groups)
-                        groupsData[[group]] <- subset(data, subset=data$group == group, select=c('elapsed', 'event'))
+                    for (group in groups) {
+                        ss <- (data$group == group)
+                        groupsData[[group]] <- subset(data, subset=ss, select=c('elapsed', 'event'))
+                    }
                 }
                 
                 for (pair in tt$rowKeys) {
@@ -110,10 +112,12 @@ survClass <- R6::R6Class(
                     
                     x <- groupsData[[pair[1]]]
                     y <- groupsData[[pair[2]]]
+                    
                     row <- list()
                     for (i in 1:4) {
                         test <- c('logrank', 'tarone-ware', 'gehan', 'peto-peto')[i]
                         result <- EnvStats::twoSampleLinearRankTestCensored(
+                            test = test,
                             x = x$elapsed,
                             x.censored = ! x$event,
                             y = y$elapsed,
@@ -121,6 +125,8 @@ survClass <- R6::R6Class(
                             censoring.side = 'right')
                         
                         row[[paste0('z[', i, ']')]] <- result$statistic['z']
+                        row[[paste0('nu[', i, ']')]] <- result$statistic['nu']
+                        row[[paste0('nuse[', i, ']')]] <- sqrt(result$statistic['var.nu'])
                         row[[paste0('p[', i, ']')]] <- result$p.value
                     }
                     
@@ -156,6 +162,7 @@ survClass <- R6::R6Class(
                 fun=fun,
                 xlab='Elapsed',
                 ylab=ylab,
+                ylim=c(0, 1),
                 surv.size = 1,
                 censor.size = 8,
                 censor.alpha = 0.8,

@@ -67,6 +67,22 @@ items:
           title: ''
           type: text
           content: Peto-Peto
+        - name: nu[1]
+          title: ν
+        - name: nu[2]
+          title: ν
+        - name: nu[3]
+          title: ν
+        - name: nu[4]
+          title: ν
+        - name: nuse[1]
+          title: SE
+        - name: nuse[2]
+          title: SE
+        - name: nuse[3]
+          title: SE
+        - name: nuse[4]
+          title: SE
         - name: z[1]
           title: z
         - name: z[2]
