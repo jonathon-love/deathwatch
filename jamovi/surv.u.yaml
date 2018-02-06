@@ -31,8 +31,34 @@ children:
             maxItemCount: 1
             isTarget: true
   - type: Label
+    name: tests
+    label: Tests
+    children:
+      - name: tests_logrank
+        type: CheckBox
+        optionName: tests
+        optionPart: logrank
+      - name: tests_gehan
+        type: CheckBox
+        optionName: tests
+        optionPart: gehan
+        enable: (groups)
+      - name: tests_tarone-ware
+        type: CheckBox
+        optionName: tests
+        optionPart: tarone-ware
+        enable: (groups)
+      - name: tests_peto-peto
+        type: CheckBox
+        optionName: tests
+        optionPart: peto-peto
+        enable: (groups)
+  - type: Label
     label: Plots
     margin: large
+    cell:
+      row: 1
+      column: 1
     children:
       - type: LayoutBox
         margin: small

@@ -10,11 +10,12 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
             eventLevel = NULL,
             elapsed = NULL,
             groups = NULL,
+            tests = NULL,
             sc = TRUE,
             hf = FALSE,
             chf = FALSE,
             ci = FALSE,
-            cens = TRUE, ...) {
+            cens = FALSE, ...) {
 
             super$initialize(
                 package='deathwatch',
@@ -45,6 +46,14 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                     "nominal",
                     "ordinal",
                     "nominaltext"))
+            private$..tests <- jmvcore::OptionNMXList$new(
+                "tests",
+                tests,
+                options=list(
+                    "logrank",
+                    "gehan",
+                    "tarone-ware",
+                    "peto-peto"))
             private$..sc <- jmvcore::OptionBool$new(
                 "sc",
                 sc,
@@ -64,12 +73,13 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
             private$..cens <- jmvcore::OptionBool$new(
                 "cens",
                 cens,
-                default=TRUE)
+                default=FALSE)
 
             self$.addOption(private$..event)
             self$.addOption(private$..eventLevel)
             self$.addOption(private$..elapsed)
             self$.addOption(private$..groups)
+            self$.addOption(private$..tests)
             self$.addOption(private$..sc)
             self$.addOption(private$..hf)
             self$.addOption(private$..chf)
@@ -81,6 +91,7 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
         eventLevel = function() private$..eventLevel$value,
         elapsed = function() private$..elapsed$value,
         groups = function() private$..groups$value,
+        tests = function() private$..tests$value,
         sc = function() private$..sc$value,
         hf = function() private$..hf$value,
         chf = function() private$..chf$value,
@@ -91,6 +102,7 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
         ..eventLevel = NA,
         ..elapsed = NA,
         ..groups = NA,
+        ..tests = NA,
         ..sc = NA,
         ..hf = NA,
         ..chf = NA,
@@ -113,9 +125,6 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 options=options,
                 name="",
                 title="Survival Analysis")
-            self$add(jmvcore::Preformatted$new(
-                options=options,
-                name="debug"))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="summary",
@@ -156,6 +165,7 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 options=options,
                 name="tests",
                 title="Tests",
+                visible="(tests)",
                 clearWith=list(
                     "event",
                     "eventLevel",
@@ -173,73 +183,103 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                         `type`="text", 
                         `content`="($key[2])"),
                     list(
-                        `name`="stat[1]", 
+                        `name`="stat[logrank]", 
                         `title`="", 
                         `type`="text", 
-                        `content`="Log-rank"),
+                        `content`="Log-rank", 
+                        `visible`="(tests:logrank)"),
                     list(
-                        `name`="stat[2]", 
+                        `name`="stat[gehan]", 
                         `title`="", 
                         `type`="text", 
-                        `content`="Gehan"),
+                        `content`="Gehan", 
+                        `visible`="(tests:gehan)"),
                     list(
-                        `name`="stat[3]", 
+                        `name`="stat[tarone-ware]", 
                         `title`="", 
                         `type`="text", 
-                        `content`="Tarone-Ware"),
+                        `content`="Tarone-Ware", 
+                        `visible`="(tests:tarone-ware)"),
                     list(
-                        `name`="stat[4]", 
+                        `name`="stat[peto-peto]", 
                         `title`="", 
                         `type`="text", 
-                        `content`="Peto-Peto"),
+                        `content`="Peto-Peto", 
+                        `visible`="(tests:peto-peto)"),
                     list(
-                        `name`="nu[1]", 
-                        `title`="\u03BD"),
+                        `name`="nu[logrank]", 
+                        `title`="\u03BD", 
+                        `visible`="(tests:logrank)"),
                     list(
-                        `name`="nu[2]", 
-                        `title`="\u03BD"),
+                        `name`="nu[gehan]", 
+                        `title`="\u03BD", 
+                        `visible`="(tests:gehan)"),
                     list(
-                        `name`="nu[3]", 
-                        `title`="\u03BD"),
+                        `name`="nu[tarone-ware]", 
+                        `title`="\u03BD", 
+                        `visible`="(tests:tarone-ware)"),
                     list(
-                        `name`="nu[4]", 
-                        `title`="\u03BD"),
+                        `name`="nu[peto-peto]", 
+                        `title`="\u03BD", 
+                        `visible`="(tests:peto-peto)"),
                     list(
-                        `name`="nuse[1]", 
-                        `title`="SE"),
+                        `name`="nuse[logrank]", 
+                        `title`="SE", 
+                        `visible`="(tests:logrank)"),
                     list(
-                        `name`="nuse[2]", 
-                        `title`="SE"),
+                        `name`="nuse[gehan]", 
+                        `title`="SE", 
+                        `visible`="(tests:gehan)"),
                     list(
-                        `name`="nuse[3]", 
-                        `title`="SE"),
+                        `name`="nuse[tarone-ware]", 
+                        `title`="SE", 
+                        `visible`="(tests:tarone-ware)"),
                     list(
-                        `name`="nuse[4]", 
-                        `title`="SE"),
+                        `name`="nuse[peto-peto]", 
+                        `title`="SE", 
+                        `visible`="(tests:peto-peto)"),
                     list(
-                        `name`="z[1]", 
-                        `title`="z"),
+                        `name`="z[logrank]", 
+                        `title`="z", 
+                        `format`="zto,p", 
+                        `visible`="(tests:logrank)"),
                     list(
-                        `name`="z[2]", 
-                        `title`="z"),
+                        `name`="z[gehan]", 
+                        `title`="z", 
+                        `format`="zto,p", 
+                        `visible`="(tests:gehan)"),
                     list(
-                        `name`="z[3]", 
-                        `title`="z"),
+                        `name`="z[tarone-ware]", 
+                        `title`="z", 
+                        `visible`="(tests:tarone-ware)"),
                     list(
-                        `name`="z[4]", 
-                        `title`="z"),
+                        `name`="z[peto-peto]", 
+                        `title`="z", 
+                        `visible`="(tests:peto-peto)"),
                     list(
-                        `name`="p[1]", 
-                        `title`="p"),
+                        `name`="p[logrank]", 
+                        `title`="p", 
+                        `type`="number", 
+                        `format`="zto,pvalue", 
+                        `visible`="(tests:logrank)"),
                     list(
-                        `name`="p[2]", 
-                        `title`="p"),
+                        `name`="p[gehan]", 
+                        `title`="p", 
+                        `type`="number", 
+                        `format`="zto,pvalue", 
+                        `visible`="(tests:gehan)"),
                     list(
-                        `name`="p[3]", 
-                        `title`="p"),
+                        `name`="p[tarone-ware]", 
+                        `title`="p", 
+                        `type`="number", 
+                        `format`="zto,pvalue", 
+                        `visible`="(tests:tarone-ware)"),
                     list(
-                        `name`="p[4]", 
-                        `title`="p"))))
+                        `name`="p[peto-peto]", 
+                        `title`="p", 
+                        `type`="number", 
+                        `format`="zto,pvalue", 
+                        `visible`="(tests:peto-peto)"))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="sc",
@@ -309,6 +349,7 @@ survBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #' @param eventLevel .
 #' @param elapsed .
 #' @param groups .
+#' @param tests .
 #' @param sc .
 #' @param hf .
 #' @param chf .
@@ -336,11 +377,12 @@ surv <- function(
     eventLevel,
     elapsed,
     groups,
+    tests,
     sc = TRUE,
     hf = FALSE,
     chf = FALSE,
     ci = FALSE,
-    cens = TRUE) {
+    cens = FALSE) {
 
     if ( ! requireNamespace('jmvcore'))
         stop('surv requires jmvcore to be installed (restart may be required)')
@@ -350,6 +392,7 @@ surv <- function(
         eventLevel = eventLevel,
         elapsed = elapsed,
         groups = groups,
+        tests = tests,
         sc = sc,
         hf = hf,
         chf = chf,

@@ -31,6 +31,19 @@ options:
       suggested: [ nominal ]
       permitted: [ nominal, ordinal, nominaltext ]
     
+    - name: tests
+      title: Tests
+      type: NMXList
+      options:
+        - name: 'logrank'
+          title: 'Log-rank'
+        - name: gehan
+          title: Gehan
+        - name: 'tarone-ware'
+          title: 'Tarone-Ware'
+        - name: 'peto-peto'
+          title: 'Peto-Peto'
+    
     - name: sc
       title: Survival curve
       type: Bool
@@ -54,5 +67,5 @@ options:
     - name: cens
       title: Censored events
       type: Bool
-      default: true
+      default: false
 ...

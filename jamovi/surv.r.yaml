@@ -33,10 +33,11 @@ items:
           format: pc
         - name: median
           title: Median
-    
+
     - name: tests
       title: Tests
       type: Table
+      visible: (tests)
       clearWith:
         - event
         - eventLevel
@@ -47,59 +48,110 @@ items:
           title: ''
           type: text
           content: ($key[1])
+
         - name: v2
           title: ''
           type: text
           content: ($key[2])
-        - name: stat[1]
+
+        - name: stat[logrank]
           title: ''
           type: text
           content: Log-rank
-        - name: stat[2]
+          visible: (tests:logrank)
+
+        - name: stat[gehan]
           title: ''
           type: text
           content: Gehan
-        - name: stat[3]
+          visible: (tests:gehan)
+
+        - name: stat[tarone-ware]
           title: ''
           type: text
           content: Tarone-Ware
-        - name: stat[4]
+          visible: (tests:tarone-ware)
+
+        - name: stat[peto-peto]
           title: ''
           type: text
           content: Peto-Peto
-        - name: nu[1]
+          visible: (tests:peto-peto)
+
+        - name: nu[logrank]
           title: ν
-        - name: nu[2]
+          visible: (tests:logrank)
+
+        - name: nu[gehan]
           title: ν
-        - name: nu[3]
+          visible: (tests:gehan)
+
+        - name: nu[tarone-ware]
           title: ν
-        - name: nu[4]
+          visible: (tests:tarone-ware)
+
+        - name: nu[peto-peto]
           title: ν
-        - name: nuse[1]
+          visible: (tests:peto-peto)
+
+        - name: nuse[logrank]
           title: SE
-        - name: nuse[2]
+          visible: (tests:logrank)
+
+        - name: nuse[gehan]
           title: SE
-        - name: nuse[3]
+          visible: (tests:gehan)
+
+        - name: nuse[tarone-ware]
           title: SE
-        - name: nuse[4]
+          visible: (tests:tarone-ware)
+
+        - name: nuse[peto-peto]
           title: SE
-        - name: z[1]
+          visible: (tests:peto-peto)
+
+        - name: z[logrank]
           title: z
-        - name: z[2]
+          format: zto,p
+          visible: (tests:logrank)
+
+        - name: z[gehan]
           title: z
-        - name: z[3]
+          format: zto,p
+          visible: (tests:gehan)
+
+        - name: z[tarone-ware]
           title: z
-        - name: z[4]
+          visible: (tests:tarone-ware)
+
+        - name: z[peto-peto]
           title: z
-        - name: p[1]
+          visible: (tests:peto-peto)
+
+        - name: p[logrank]
           title: p
-        - name: p[2]
+          type: number
+          format: zto,pvalue
+          visible: (tests:logrank)
+
+        - name: p[gehan]
           title: p
-        - name: p[3]
+          type: number
+          format: zto,pvalue
+          visible: (tests:gehan)
+
+        - name: p[tarone-ware]
           title: p
-        - name: p[4]
+          type: number
+          format: zto,pvalue
+          visible: (tests:tarone-ware)
+
+        - name: p[peto-peto]
           title: p
-    
+          type: number
+          format: zto,pvalue
+          visible: (tests:peto-peto)
+
     - name: sc
       title: Survival Curve
       type: Image
@@ -114,7 +166,7 @@ items:
         - groups
         - cens
         - ci
-    
+
     - name: hf
       title: Hazard Function
       type: Image
@@ -127,7 +179,7 @@ items:
         - eventLevel
         - elapsed
         - groups
-    
+
     - name: chf
       title: Cumulative Hazard Function
       type: Image

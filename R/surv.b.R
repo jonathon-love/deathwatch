@@ -94,7 +94,7 @@ survClass <- R6::R6Class(
             self$results$chf$setState(s)
             
             tt <- self$results$tests
-            if (tt$isNotFilled()) {
+            if (tt$isNotFilled() && length(self$options$tests) > 0) {
             
                 groups <- private$.groups()
                 
@@ -108,14 +108,17 @@ survClass <- R6::R6Class(
                 
                 for (pair in tt$rowKeys) {
                     
-                    private$.checkpoint()
-                    
                     x <- groupsData[[pair[1]]]
                     y <- groupsData[[pair[2]]]
                     
-                    row <- list()
-                    for (i in 1:4) {
-                        test <- c('logrank', 'tarone-ware', 'gehan', 'peto-peto')[i]
+                    for (i in seq_along(self$options$tests)) {
+                        test <- self$options$tests[i]
+                        
+                        if (tt$isFilled(rowKey=pair, col=paste0('nu[', test, ']')))
+                            next()
+                        
+                        private$.checkpoint()
+                        
                         result <- EnvStats::twoSampleLinearRankTestCensored(
                             test = test,
                             x = x$elapsed,
@@ -124,13 +127,15 @@ survClass <- R6::R6Class(
                             y.censored = ! y$event,
                             censoring.side = 'right')
                         
-                        row[[paste0('z[', i, ']')]] <- result$statistic['z']
-                        row[[paste0('nu[', i, ']')]] <- result$statistic['nu']
-                        row[[paste0('nuse[', i, ']')]] <- sqrt(result$statistic['var.nu'])
-                        row[[paste0('p[', i, ']')]] <- result$p.value
+                        row <- list()
+                        
+                        row[[paste0('z[', test, ']')]] <- result$statistic['z']
+                        row[[paste0('nu[', test, ']')]] <- result$statistic['nu']
+                        row[[paste0('nuse[', test, ']')]] <- sqrt(result$statistic['var.nu'])
+                        row[[paste0('p[', test, ']')]] <- result$p.value
+                        
+                        tt$setRow(rowKey=pair, values=row)
                     }
-                    
-                    tt$setRow(rowKey=pair, values=row)
                 }
             }
         },
@@ -145,16 +150,19 @@ survClass <- R6::R6Class(
                 fun <- NULL
                 cens <- self$options$cens
                 ci <- self$options$ci
+                ylim <- c(0, 1)
             } else if (identical(image, self$results$hf)) {
                 ylab <- 'Hazard Function'
                 fun <- 'event'
                 cens <- FALSE
                 ci <- FALSE
+                ylim <- c(0, 1)
             } else {
                 ylab <- 'Cumulative Hazard'
                 fun <- 'cumhaz'
                 cens <- FALSE
                 ci <- FALSE
+                ylim <- NULL
             }
             
             plot <- ggfortify:::autoplot.survfit(
@@ -162,7 +170,7 @@ survClass <- R6::R6Class(
                 fun=fun,
                 xlab='Elapsed',
                 ylab=ylab,
-                ylim=c(0, 1),
+                ylim=ylim,
                 surv.size = 1,
                 censor.size = 8,
                 censor.alpha = 0.8,
