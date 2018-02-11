@@ -152,6 +152,9 @@ survClass <- R6::R6Class(
                 ci <- self$options$ci
                 ylim <- c(0, 1)
             } else if (identical(image, self$results$hf)) {
+                
+                return(FALSE)
+                
                 ylab <- 'Hazard Function'
                 fun <- 'event'
                 cens <- FALSE

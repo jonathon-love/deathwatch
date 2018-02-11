@@ -170,7 +170,7 @@ items:
     - name: hf
       title: Hazard Function
       type: Image
-      visible: (hf)
+      visible: false
       width: 600
       height: 400
       renderFun: .plot

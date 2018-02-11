@@ -61,7 +61,8 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
             private$..hf <- jmvcore::OptionBool$new(
                 "hf",
                 hf,
-                default=FALSE)
+                default=FALSE,
+                hidden=TRUE)
             private$..chf <- jmvcore::OptionBool$new(
                 "chf",
                 chf,
@@ -299,7 +300,7 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 options=options,
                 name="hf",
                 title="Hazard Function",
-                visible="(hf)",
+                visible=FALSE,
                 width=600,
                 height=400,
                 renderFun=".plot",

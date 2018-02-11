@@ -71,6 +71,4 @@ children:
               - type: CheckBox
                 name: cens
           - type: CheckBox
-            name: hf
-          - type: CheckBox
             name: chf

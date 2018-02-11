@@ -53,6 +53,7 @@ options:
       title: Hazard function
       type: Bool
       default: false
+      hidden: true
     
     - name: chf
       title: Cumulative hazard function
