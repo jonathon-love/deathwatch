@@ -4,7 +4,7 @@ title: Survival Analysis
 menuGroup: Survival
 menuSubgroup: Death Watch
 version: '1.0.0'
-jas: '1.1'
+jas: '1.2'
 
 options:
     - name: data
@@ -14,7 +14,8 @@ options:
       title: Event
       type: Variable
       suggested: [ nominal ]
-    
+      permitted: [ factor ]
+
     - name: eventLevel
       title: Event level
       type: Level
@@ -24,13 +25,14 @@ options:
       title: Time Elapsed
       type: Variable
       suggested: [ continuous ]
-    
+      permitted: [ numeric ]
+
     - name: groups
       title: Group
       type: Variable
       suggested: [ nominal ]
-      permitted: [ nominal, ordinal, nominaltext ]
-    
+      permitted: [ factor ]
+
     - name: tests
       title: Tests
       type: NMXList
@@ -43,18 +45,18 @@ options:
           title: 'Tarone-Ware'
         - name: 'peto-peto'
           title: 'Peto-Peto'
-    
+
     - name: sc
       title: Survival curve
       type: Bool
       default: true
-    
+
     - name: hf
       title: Hazard function
       type: Bool
       default: false
       hidden: true
-    
+
     - name: chf
       title: Cumulative hazard function
       type: Bool
