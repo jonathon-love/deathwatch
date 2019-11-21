@@ -1,13 +1,12 @@
 ---
 title: Death Watch
 name: deathwatch
-version: 1.0.1
+version: 1.0.2
 jms: '1.0'
 authors:
   - Jonathon Love
-  - Cole Davis
 maintainer: Jonathon Love
-date: '2018-02-10'
+date: '2019-11-21'
 type: R
 description: Survival analysis
 analyses:
@@ -17,5 +16,7 @@ analyses:
     menuGroup: Survival
     menuSubgroup: Death Watch
     menuTitle: Survival Analysis
+usesNative: true
+minApp: 1.0.8
 
 ...

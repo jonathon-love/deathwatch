@@ -27,7 +27,9 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 "event",
                 event,
                 suggested=list(
-                    "nominal"))
+                    "nominal"),
+                permitted=list(
+                    "factor"))
             private$..eventLevel <- jmvcore::OptionLevel$new(
                 "eventLevel",
                 eventLevel,
@@ -36,16 +38,16 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 "elapsed",
                 elapsed,
                 suggested=list(
-                    "continuous"))
+                    "continuous"),
+                permitted=list(
+                    "numeric"))
             private$..groups <- jmvcore::OptionVariable$new(
                 "groups",
                 groups,
                 suggested=list(
                     "nominal"),
                 permitted=list(
-                    "nominal",
-                    "ordinal",
-                    "nominaltext"))
+                    "factor"))
             private$..tests <- jmvcore::OptionNMXList$new(
                 "tests",
                 tests,
@@ -388,6 +390,19 @@ surv <- function(
     if ( ! requireNamespace('jmvcore'))
         stop('surv requires jmvcore to be installed (restart may be required)')
 
+    if ( ! missing(event)) event <- jmvcore::resolveQuo(jmvcore::enquo(event))
+    if ( ! missing(elapsed)) elapsed <- jmvcore::resolveQuo(jmvcore::enquo(elapsed))
+    if ( ! missing(groups)) groups <- jmvcore::resolveQuo(jmvcore::enquo(groups))
+    if (missing(data))
+        data <- jmvcore::marshalData(
+            parent.frame(),
+            `if`( ! missing(event), event, NULL),
+            `if`( ! missing(elapsed), elapsed, NULL),
+            `if`( ! missing(groups), groups, NULL))
+
+    for (v in event) if (v %in% names(data)) data[[v]] <- as.factor(data[[v]])
+    for (v in groups) if (v %in% names(data)) data[[v]] <- as.factor(data[[v]])
+
     options <- survOptions$new(
         event = event,
         eventLevel = eventLevel,
@@ -399,9 +414,6 @@ surv <- function(
         chf = chf,
         ci = ci,
         cens = cens)
-
-    results <- survResults$new(
-        options = options)
 
     analysis <- survClass$new(
         options = options,
