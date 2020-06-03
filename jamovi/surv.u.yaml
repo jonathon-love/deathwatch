@@ -8,7 +8,14 @@ children:
     stretchFactor: 1
     children:
       - type: TargetLayoutBox
-        label: Event
+        label: Time
+        children:
+          - type: VariablesListBox
+            name: elapsed
+            maxItemCount: 1
+            isTarget: true
+      - type: TargetLayoutBox
+        label: Event indicator (1/0)
         children:
           - type: VariablesListBox
             name: event
@@ -16,13 +23,6 @@ children:
             isTarget: true
           - type: LevelSelector
             name: eventLevel
-      - type: TargetLayoutBox
-        label: Time Elapsed
-        children:
-          - type: VariablesListBox
-            name: elapsed
-            maxItemCount: 1
-            isTarget: true
       - type: TargetLayoutBox
         label: Groups
         children:
@@ -38,6 +38,7 @@ children:
         type: CheckBox
         optionName: tests
         optionPart: logrank
+        enable: (groups)
       - name: tests_gehan
         type: CheckBox
         optionName: tests
@@ -70,5 +71,15 @@ children:
                 name: ci
               - type: CheckBox
                 name: cens
+              - type: CheckBox
+                name: risktable
+              - type: CheckBox
+                name: plotmedian
           - type: CheckBox
             name: chf
+            children:
+              - type: CheckBox
+                name: logscale
+          - type: TextBox
+            name: timeunits
+            format: string
