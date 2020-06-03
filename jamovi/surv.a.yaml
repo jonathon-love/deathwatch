@@ -10,22 +10,23 @@ options:
     - name: data
       type: Data
 
-    - name: event
-      title: Event
+    - name: elapsed
+      title: Time
       type: Variable
-      suggested: [ nominal ]
-      permitted: [ factor ]
+      suggested: [ continuous ]
+      permitted: [ numeric ]
+      
+
+    - name: event
+      title: Event indicator (1/0)
+      type: Variable
+      suggested: [ continuous, nominal ]
+      permitted: [ factor, numeric ]
 
     - name: eventLevel
       title: Event level
       type: Level
       variable: (event)
-
-    - name: elapsed
-      title: Time Elapsed
-      type: Variable
-      suggested: [ continuous ]
-      permitted: [ numeric ]
 
     - name: groups
       title: Group
@@ -51,12 +52,6 @@ options:
       type: Bool
       default: true
 
-    - name: hf
-      title: Hazard function
-      type: Bool
-      default: false
-      hidden: true
-
     - name: chf
       title: Cumulative hazard function
       type: Bool
@@ -71,4 +66,24 @@ options:
       title: Censored events
       type: Bool
       default: false
+  
+    - name: risktable
+      title: Risk table
+      type: Bool
+      default: false
+      
+    - name: plotmedian
+      title: Add median 
+      type: Bool
+      default: false
+      
+    - name: logscale
+      title: Log scale
+      type: Bool
+      default: false
+      
+    - name: timeunits
+      title: Time units
+      type: String
+      default: ""
 ...
