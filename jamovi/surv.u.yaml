@@ -8,14 +8,14 @@ children:
     stretchFactor: 1
     children:
       - type: TargetLayoutBox
-        label: Time
+        label: Time Elapsed
         children:
           - type: VariablesListBox
             name: elapsed
             maxItemCount: 1
             isTarget: true
       - type: TargetLayoutBox
-        label: Event indicator (1/0)
+        label: Event 
         children:
           - type: VariablesListBox
             name: event
@@ -72,14 +72,14 @@ children:
               - type: CheckBox
                 name: cens
               - type: CheckBox
-                name: risktable
+                name: risk
               - type: CheckBox
-                name: plotmedian
+                name: median
           - type: CheckBox
             name: chf
             children:
               - type: CheckBox
                 name: logscale
           - type: TextBox
-            name: timeunits
+            name: units
             format: string
