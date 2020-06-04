@@ -16,7 +16,7 @@ survClass <- R6::R6Class(
             ### column in Table 1
             ### Events Summary
             ####################################
-            summary <- self$results$compsurvTable1
+            summary <- self$results$summary
             for (group in groups)
                 summary$addRow(rowKey=group, list(group=group))
             
@@ -25,7 +25,7 @@ survClass <- R6::R6Class(
             ### column in Table 3
             ### Median Estimates
             ####################################
-            summary <- self$results$compsurvTable3
+            summary <- self$results$medianestimates
             for (group in groups)
                 summary$addRow(rowKey=group, list(group=group))
             
@@ -36,6 +36,14 @@ survClass <- R6::R6Class(
             else {
                 tests$setVisible(FALSE)
             }
+            
+            ################################
+            ### Change the size of the
+            ### survival plot if 
+            ### risk table option is ticked
+            ################################
+            if (self$options$risk)
+                self$results$sc$setSize(600, 600)  
             
         },
         .groups = function() {
@@ -52,7 +60,6 @@ survClass <- R6::R6Class(
         },
         .run = function() {
             
-            library(tidyr)
             eventVarName <- self$options$event
             elapsedVarName <- self$options$elapsed
 
@@ -87,6 +94,11 @@ survClass <- R6::R6Class(
                 group <- 1
             tmpDat$group <- group
             
+            ############################
+            ### use only complete cases
+            ############################
+            tmpDat <- na.omit(tmpDat)
+            
             
             ############################
             ### Check if the data.frame
@@ -100,22 +112,24 @@ survClass <- R6::R6Class(
             ### Populate first table with the 
             ### event summary
             ##################################
-            table1 <- self$results$compsurvTable1
+            table1 <- self$results$summary
             if (is.null(self$options$groups)) {
                 fit <- survival::survfit(survival::Surv(times, status) ~ group, data=tmpDat)
                 table1$setRow(rowNo=1, values=list(
                         n=fit$n,
-                        obs=sum(fit$n.event)))
+                        censored = fit$n - sum(fit$n.event),
+                        obs = sum(fit$n.event)))
             }
             if (!is.null(self$options$groups)) {
                 fit <- survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat)
                 for (i in 1:length(unique(tmpDat$group)) ) {
                     table1$setRow(rowNo=i, values=list(
                         n=fit$n[i],
+                        censored = fit$n[i] - fit$obs[i],
                         obs=fit$obs[i],
                         exp=fit$exp[i]
-                        ))
-                }
+                    ))
+                    }
                 }            
 
 
@@ -128,7 +142,7 @@ survClass <- R6::R6Class(
                 temp <- as.data.frame(rbind(summary(s)$table,summary(s)$table))[1,]
             } 
             if (!is.null(self$options$groups)) temp <- as.data.frame(summary(s)$table)
-            table3 <- self$results$compsurvTable3
+            table3 <- self$results$medianestimates
             for (i in 1:length(unique(tmpDat$group)) ) {
                 table3$setRow(rowNo=i, values=list(
                     median=temp$median[i],
@@ -138,7 +152,6 @@ survClass <- R6::R6Class(
             }
             
             
-
             #################################
             #### Set the state for the plots
             #################################
@@ -146,7 +159,6 @@ survClass <- R6::R6Class(
             self$results$chf$setState(tmpDat)
             
             
-
             #---------------------------------
             #-- Populates the table with the  
             #-- tests results
@@ -199,20 +211,19 @@ survClass <- R6::R6Class(
                         row[[paste0('pvalue[', test, ']')]] <- DF$pvalue[i]
                         
                         tt$setRow(rowKey=1, values=row)
+                        
                     }
+                    tt$addFootnote(rowKey=1,col = "stat[logrank]","From a call to survdiff in the survival pckg.")
+                    tt$addFootnote(rowKey=1,col = "stat[peto-peto]","From a call to survdiff in the survival pckg.")
+                    tt$addFootnote(rowKey=1,col = "stat[tarone-ware]","From a call to logrank_test in the coin pckg.")
+                    tt$addFootnote(rowKey=1,col = "stat[gehan]","From a call to logrank_test in the coin pckg.")
                     
                 }
-                tt$setNote("note1","Log-Rank and Peto-Peto tests use survdiff from the survival package. Gehan and Tarone-Ware tests are obtained from the coin package.",init=TRUE)
 
             }
 
-            
-            
-            
-
-            
         },
-        .plot=function(image, ...) {
+        .plot=function(image, theme, ggtheme, ...) {
             
             eventVarName <- self$options$event
             elapsedVarName <- self$options$elapsed
@@ -225,20 +236,19 @@ survClass <- R6::R6Class(
             s <- survival::survfit(survival::Surv(times, status) ~ group, data=tmpDat)
             if (!is.null(names(s$strata))) names(s$strata) <- gsub("group=", "", names(s$strata))
 
-            conf.int <- self$options$ci
-            censYN <- self$options$cens
-            risktableYN <- self$options$risktable
+            ci <- self$options$ci
+            cens <- self$options$cens
+            risk <- self$options$risk
             legend <- "top"
             legendtitle <- self$options$groups
             if (is.null(self$options$groups)) {
                 legend <-"none"
                 legendtitle <- NULL
-                
-            } 
+                } 
             xlab <- "Time"
-            if (!self$options$timeunits=="") xlab <- paste("Time (",self$options$timeunits,")",sep="")
+            if (!self$options$units=="") xlab <- paste("Time (",self$options$units,")",sep="")
             survmedianline <-"none"
-            if (self$options$plotmedian) survmedianline <- "hv"
+            if (self$options$median) survmedianline <- "hv"
             
             
             if (identical(image, self$results$sc)) {
@@ -248,41 +258,35 @@ survClass <- R6::R6Class(
                 if (!self$options$logscale) {
                     func <- "cumhaz"
                     ylab <- "Cumulative Hazards"
-                    conf.int <- FALSE
-                    censYN <- FALSE
-                    risktableYN <- FALSE
+                    ci <- FALSE
+                    cens <- FALSE
+                    risk <- FALSE
                     survmedianline <-"none"
-                    
-                    
                 } else {
                     func <- function(x) log(-log(x))
                     ylab <- "Cumulative Hazards (log scale)"
-                    conf.int <- FALSE
-                    censYN <- FALSE
-                    risktableYN <- FALSE
+                    ci <- FALSE
+                    cens <- FALSE
+                    risk <- FALSE
                     survmedianline <-"none"
-                    
-                    
-                }
-                    
+                    }
                 } 
                     
             p <- survminer::ggsurvplot(s,
                                        data = tmpDat,
                                        xlab=xlab,
                                        ylab = ylab,
-                                       conf.int = conf.int,
-                                       legend=legend,
+                                       conf.int = ci,
+                                       legend = legend,
                                        legend.title=legendtitle,
-                                       censor = censYN,
+                                       censor = cens,
                                        fun = func,
                                        censor.shape = "|",
                                        censor.size = 6,
-                                       risk.table = risktableYN,
-                                       surv.median.line = survmedianline
+                                       risk.table = risk,
+                                       surv.median.line = survmedianline,
+                                       ggtheme = ggtheme
                                        )
-            
-            print(p)
-            return(TRUE)
+            return(p)
         })
 )
