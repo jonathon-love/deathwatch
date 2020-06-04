@@ -4,7 +4,7 @@ title: Survival Analysis
 jrs:   '1.1'
 
 items:
-    - name:  compsurvTable1
+    - name:  summary
       title: Events Summary
       type: Table
       clearWith:
@@ -21,6 +21,9 @@ items:
         - name: n
           title: 'N'
           type: integer
+        - name: censored
+          title: Censored
+          type: integer
         - name: obs
           title: 'Observed Events'
           type: integer
@@ -29,7 +32,7 @@ items:
           type: number
           
 
-    - name:  compsurvTable3
+    - name:  medianestimates
       title: Median Estimates
       type: Table
       clearWith:
@@ -85,54 +88,54 @@ items:
           content: Peto-Peto
           visible: (tests:peto-peto)
         - name: chisqr[logrank]
-          title: Chi-Squared
+          title: χ²
           type: number
           visible: (tests:logrank)
         - name: chisqr[gehan]
-          title: Chi-Squared
+          title: χ²
           type: number
           visible: (tests:gehan)
         - name: chisqr[tarone-ware]
-          title: Chi-Squared
+          title: χ²
           type: number
           visible: (tests:tarone-ware)
         - name: chisqr[peto-peto]
-          title: Chi-Squared
+          title: χ²
           type: number
           visible: (tests:peto-peto)
         - name: df[logrank]
-          title: DF
+          title: df
           type: integer
           visible: (tests:logrank)
         - name: df[gehan]
-          title: DF
+          title: df
           type: integer
           visible: (tests:gehan)
         - name: df[tarone-ware]
-          title: DF
+          title: df
           type: integer
           visible: (tests:tarone-ware)
         - name: df[peto-peto]
-          title: DF
+          title: df
           type: integer
           visible: (tests:peto-peto)
         - name: pvalue[logrank]
-          title: P-Value
+          title: p
           type: number
           format: zto,pvalue
           visible: (tests:logrank)
         - name: pvalue[gehan]
-          title: P-Value
+          title: p
           type: number
           format: zto,pvalue
           visible: (tests:gehan)
         - name: pvalue[tarone-ware]
-          title: P-Value
+          title: p
           type: number
           format: zto,pvalue
           visible: (tests:tarone-ware)
         - name: pvalue[peto-peto]
-          title: P-Value
+          title: p
           type: number
           format: zto,pvalue
           visible: (tests:peto-peto)
@@ -143,7 +146,7 @@ items:
       type: Image
       visible: (sc)
       width: 600
-      height: 600
+      height: 400
       renderFun: .plot
       clearWith:
         - event
@@ -152,9 +155,9 @@ items:
         - groups
         - cens
         - ci
-        - timeunits
-        - risktable
-        - plotmedian
+        - units
+        - risk
+        - median
 
     - name: chf
       title: Cumulative Hazard Function
@@ -168,7 +171,7 @@ items:
         - eventLevel
         - elapsed
         - groups
-        - timeunits
+        - units
         - logscale
 
 ...
