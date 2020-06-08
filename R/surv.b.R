@@ -213,11 +213,7 @@ survClass <- R6::R6Class(
                         tt$setRow(rowKey=1, values=row)
                         
                     }
-                    tt$addFootnote(rowKey=1,col = "stat[logrank]","From a call to survdiff in the survival pckg.")
-                    tt$addFootnote(rowKey=1,col = "stat[peto-peto]","From a call to survdiff in the survival pckg.")
-                    tt$addFootnote(rowKey=1,col = "stat[tarone-ware]","From a call to logrank_test in the coin pckg.")
-                    tt$addFootnote(rowKey=1,col = "stat[gehan]","From a call to logrank_test in the coin pckg.")
-                    
+
                 }
 
             }
