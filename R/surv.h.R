@@ -226,24 +226,36 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                         `name`="stat[logrank]", 
                         `title`="", 
                         `type`="text", 
+                        `refs`=list(
+                            "survival1",
+                            "survival2"), 
                         `content`="Log-rank", 
                         `visible`="(tests:logrank)"),
                     list(
                         `name`="stat[gehan]", 
                         `title`="", 
                         `type`="text", 
+                        `refs`=list(
+                            "coin1",
+                            "coin2"), 
                         `content`="Gehan", 
                         `visible`="(tests:gehan)"),
                     list(
                         `name`="stat[tarone-ware]", 
                         `title`="", 
                         `type`="text", 
+                        `refs`=list(
+                            "coin1",
+                            "coin2"), 
                         `content`="Tarone-Ware", 
                         `visible`="(tests:tarone-ware)"),
                     list(
                         `name`="stat[peto-peto]", 
                         `title`="", 
                         `type`="text", 
+                        `refs`=list(
+                            "survival1",
+                            "survival2"), 
                         `content`="Peto-Peto", 
                         `visible`="(tests:peto-peto)"),
                     list(
