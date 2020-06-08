@@ -70,21 +70,25 @@ items:
         - name: stat[logrank]
           title: ''
           type: text
+          refs: [survival1,survival2]
           content: Log-rank 
           visible: (tests:logrank)
         - name: stat[gehan]
           title: ''
           type: text
+          refs: [coin1,coin2]
           content: Gehan
           visible: (tests:gehan)
         - name: stat[tarone-ware]
           title: ''
           type: text
+          refs: [coin1,coin2]
           content: Tarone-Ware
           visible: (tests:tarone-ware)
         - name: stat[peto-peto]
           title: ''
           type: text
+          refs: [survival1,survival2]
           content: Peto-Peto
           visible: (tests:peto-peto)
         - name: chisqr[logrank]
