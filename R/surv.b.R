@@ -37,6 +37,26 @@ survClass <- R6::R6Class(
                 tests$setVisible(FALSE)
             }
             
+            
+            ####################################
+            ### Add levels dinamically to first
+            ### column in Table with pairwise 
+            ### comparisons
+            ####################################
+            testspw <- self$results$testspw
+            if (length(groups) > 2) {
+                comparisons <- combn(groups, 2)
+                for (i in seq_len(ncol(comparisons))) {
+                    key = comparisons[,i]
+                    #testspw$addRow(rowKey=key)
+                    testspw$addRow(rowKey=paste(key,collapse = " vs "))
+                }
+            }
+            else {
+                testspw$setVisible(FALSE)
+            }
+            
+            
             ################################
             ### Change the size of the
             ### survival plot if 
@@ -216,6 +236,65 @@ survClass <- R6::R6Class(
 
                 }
 
+            }
+            
+            #---------------------------------
+            #-- Populates the table with the  
+            #-- tests results with multiple
+            #-- comparisons.
+            #-- Only if there is a grouping
+            #-- variable and the number of
+            #-- levels is >2
+            #---------------------------------
+            if (!is.null(self$options$groups) & length(unique(tmpDat$group))>2) {
+                tt <- self$results$testspw
+                if (tt$isNotFilled() && self$options$testspw) {
+                    
+                    groups <- private$.groups()
+                    ngroups <- length(groups)
+                    
+                    if (length(groups) > 2) {
+                        groupsData <- list()
+                        for (group in groups) {
+                            ss <- (tmpDat$group == group)
+                            groupsData[[group]] <- subset(tmpDat, subset=ss, select=c('times', 'status'))
+                        }
+                    }
+                    
+                    for (pair in tt$rowKeys) {
+                        
+                        x <- groupsData[[unlist(strsplit(pair," vs "))[1]]]
+                        y <- groupsData[[unlist(strsplit(pair," vs "))[2]]]
+                        
+                        for (i in seq_along(self$options$tests)) {
+                            test <- self$options$tests[i]
+                            
+                            if (tt$isFilled(rowKey=pair, col=paste0('nupw[', test, ']')))
+                                next()
+                            
+                            private$.checkpoint()
+                            
+                            result <- EnvStats::twoSampleLinearRankTestCensored(
+                                test = test,
+                                x = x$times,
+                                x.censored = ! x$status,
+                                y = y$times,
+                                y.censored = ! y$status,
+                                censoring.side = 'right')
+                            
+                            row <- list()
+                            
+                            row[[paste0('zpw[', test, ']')]] <- result$statistic['z']
+                            row[[paste0('nupw[', test, ']')]] <- result$statistic['nu']
+                            row[[paste0('nusepw[', test, ']')]] <- sqrt(result$statistic['var.nu'])
+                            row[[paste0('ppw[', test, ']')]] <- result$p.value * min(ngroups*(ngroups - 1)/2,1)
+                            
+                            tt$setRow(rowKey=pair, values=row)
+                        }
+                       
+                        tt$setNote("note","P-values are Bonferroni-corrected.") 
+                    }
+                }
             }
 
         },
