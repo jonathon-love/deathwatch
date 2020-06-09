@@ -47,6 +47,11 @@ options:
         - name: 'peto-peto'
           title: 'Peto-Peto'
 
+    - name: testspw
+      title: Pairwise Comparisons
+      type: Bool
+      default: false
+      
     - name: sc
       title: Survival curve
       type: Bool
