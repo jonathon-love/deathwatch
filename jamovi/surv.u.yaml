@@ -1,6 +1,6 @@
 title: Survival Analysis
 name: surv
-jus: '2.0'
+jus: '3.0'
 compilerMode: tame
 children:
   - type: VariableSupplier
@@ -15,7 +15,7 @@ children:
             maxItemCount: 1
             isTarget: true
       - type: TargetLayoutBox
-        label: Event 
+        label: Event
         children:
           - type: VariablesListBox
             name: event
@@ -31,29 +31,41 @@ children:
             maxItemCount: 1
             isTarget: true
   - type: Label
-    name: tests
-    label: Tests
+    label: Analysis of the differences
     children:
-      - name: tests_logrank
-        type: CheckBox
-        optionName: tests
-        optionPart: logrank
-        enable: (groups)
-      - name: tests_gehan
-        type: CheckBox
-        optionName: tests
-        optionPart: gehan
-        enable: (groups)
-      - name: tests_tarone-ware
-        type: CheckBox
-        optionName: tests
-        optionPart: tarone-ware
-        enable: (groups)
-      - name: tests_peto-peto
-        type: CheckBox
-        optionName: tests
-        optionPart: peto-peto
-        enable: (groups)
+      - type: Label
+        name: tests
+        label: Tests
+        children:
+          - name: tests_logrank
+            type: CheckBox
+            optionName: tests
+            optionPart: logrank
+            enable: (groups)
+          - name: tests_gehan
+            type: CheckBox
+            optionName: tests
+            optionPart: gehan
+            enable: (groups)
+          - name: tests_tarone-ware
+            type: CheckBox
+            optionName: tests
+            optionPart: tarone-ware
+            enable: (groups)
+          - name: tests_peto-peto
+            type: CheckBox
+            optionName: tests
+            optionPart: peto-peto
+            enable: (groups)
+      - type: Label
+        label: Pairwise comparisons
+        children:
+          - type: LayoutBox
+            margin: large
+            children:
+              - type: CheckBox
+                name: testspw
+
   - type: Label
     label: Plots
     margin: large
@@ -69,17 +81,23 @@ children:
             children:
               - type: CheckBox
                 name: ci
+                enable: (sc)
               - type: CheckBox
                 name: cens
+                enable: (sc)
               - type: CheckBox
                 name: risk
+                enable: (sc)
               - type: CheckBox
                 name: median
+                enable: (sc)
           - type: CheckBox
             name: chf
             children:
               - type: CheckBox
                 name: logscale
+                enable: (chf)
           - type: TextBox
             name: units
             format: string
+
