@@ -31,4 +31,11 @@
         `year`=2000, 
         `title`="Modeling Survival Data: Extending the Cox Model", 
         `publisher`="Springer", 
+        `address`="New York"), 
+    `multcomp`=list(
+        `type`="book", 
+        `author`="Steven P. Millard", 
+        `year`=2013, 
+        `title`="EnvStats:  An R Package for Environmental Statistics", 
+        `publisher`="Springer", 
         `address`="New York"))
