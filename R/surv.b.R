@@ -44,7 +44,7 @@ survClass <- R6::R6Class(
             ### comparisons
             ####################################
             testspw <- self$results$testspw
-            if (length(groups) > 2) {
+            if (length(groups) >= 2) {
                 comparisons <- combn(groups, 2)
                 for (i in seq_len(ncol(comparisons))) {
                     key = comparisons[,i]
@@ -246,8 +246,12 @@ survClass <- R6::R6Class(
             #-- variable and the number of
             #-- levels is >2
             #---------------------------------
-            if (!is.null(self$options$groups) & length(unique(tmpDat$group))>2) {
+            if (!is.null(self$options$groups) ) {
                 tt <- self$results$testspw
+                if (length(unique(tmpDat$group))<=2) {
+                    tt$setNote("note0",paste("Grouping variable, ",self$options$groups,", must have 3 or more levels to perform this analysis.",sep="") )
+                    return()
+                }
                 if (tt$isNotFilled() && self$options$testspw) {
                     
                     groups <- private$.groups()
@@ -360,7 +364,8 @@ survClass <- R6::R6Class(
                                        censor.size = 6,
                                        risk.table = risk,
                                        surv.median.line = survmedianline,
-                                       ggtheme = ggtheme
+                                       ggtheme = ggtheme,
+                                       tables.height = length(unique(tmpDat$group))*0.02+0.21
                                        )
             return(p)
         })
