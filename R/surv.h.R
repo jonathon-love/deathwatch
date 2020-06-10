@@ -149,7 +149,6 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
 survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
-        text = function() private$.items[["text"]],
         summary = function() private$.items[["summary"]],
         medianestimates = function() private$.items[["medianestimates"]],
         tests = function() private$.items[["tests"]],
@@ -163,10 +162,6 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 options=options,
                 name="",
                 title="Survival Analysis")
-            self$add(jmvcore::Preformatted$new(
-                options=options,
-                name="text",
-                title="Independent Samples T-Test"))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="summary",
@@ -526,7 +521,6 @@ survBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #' @param units .
 #' @return A results object containing:
 #' \tabular{llllll}{
-#'   \code{results$text} \tab \tab \tab \tab \tab a preformatted \cr
 #'   \code{results$summary} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$medianestimates} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$tests} \tab \tab \tab \tab \tab a table \cr
