@@ -48,8 +48,7 @@ survClass <- R6::R6Class(
                 comparisons <- combn(groups, 2)
                 for (i in seq_len(ncol(comparisons))) {
                     key = comparisons[,i]
-                    #testspw$addRow(rowKey=key)
-                    testspw$addRow(rowKey=paste(key,collapse = " vs "))
+                    testspw$addRow(rowKey=key)
                 }
             }
             else {
@@ -267,8 +266,8 @@ survClass <- R6::R6Class(
                     
                     for (pair in tt$rowKeys) {
                         
-                        x <- groupsData[[unlist(strsplit(pair," vs "))[1]]]
-                        y <- groupsData[[unlist(strsplit(pair," vs "))[2]]]
+                        x <- groupsData[[pair[1]]]
+                        y <- groupsData[[pair[2]]]
                         
                         for (i in seq_along(self$options$tests)) {
                             test <- self$options$tests[i]
