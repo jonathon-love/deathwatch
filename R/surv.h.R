@@ -348,7 +348,12 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                         `name`="v1", 
                         `title`="", 
                         `type`="text", 
-                        `content`="($key)"),
+                        `content`="($key[1])"),
+                    list(
+                        `name`="v2", 
+                        `title`="", 
+                        `type`="text", 
+                        `content`="($key[2])"),
                     list(
                         `name`="statpw[logrank]", 
                         `title`="Test", 
