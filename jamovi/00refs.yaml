@@ -1,0 +1,44 @@
+---
+refs:
+    coin1:
+        type: 'article'
+        author: Torsten Hothorn, Kurt Hornik, Mark A. van de Wiel and Achim Zeileis
+        year: 2006
+        title: 'A Lego system for conditional inference'
+        publisher: The American Statistician
+        volume: 60(3)
+        pages: 257-263
+
+    coin2:
+        type: 'article'
+        author: Torsten Hothorn, Kurt Hornik, Mark A. van de Wiel and Achim Zeileis
+        year: 2008
+        title: 'Implementing a class of permutation tests: The coin package'
+        publisher: 'Journal of Statistical Software'
+        volume: 28(8)
+        pages: 1-23
+        
+    survival1:
+        type: 'software'
+        author: Terry M Therneau
+        year: 2020
+        title: 'A Package for Survival Analysis in R'
+        publisher: '[R package]. Retrieved from https://cran.r-project.org/package=survival'
+        url: https://cran.r-project.org/package=survival
+
+    survival2:
+        type: 'book'
+        author: Terry M. Therneau and Patricia M. Grambsch
+        year: 2000
+        title: 'Modeling Survival Data: Extending the Cox Model'
+        publisher: 'Springer'
+        address: 'New York'
+        
+    multcomp:
+        type: 'book'
+        author: Steven P. Millard
+        year: 2013
+        title: 'EnvStats:  An R Package for Environmental Statistics'
+        publisher: 'Springer'
+        address: 'New York'
+...

@@ -10,22 +10,22 @@ options:
     - name: data
       type: Data
 
-    - name: event
-      title: Event
-      type: Variable
-      suggested: [ nominal ]
-      permitted: [ factor ]
-
-    - name: eventLevel
-      title: Event level
-      type: Level
-      variable: (event)
-
     - name: elapsed
       title: Time Elapsed
       type: Variable
       suggested: [ continuous ]
       permitted: [ numeric ]
+
+    - name: event
+      title: Event 
+      type: Variable
+      suggested: [ continuous, nominal ]
+      permitted: [ factor, numeric ]
+
+    - name: eventLevel
+      title: Event level
+      type: Level
+      variable: (event)
 
     - name: groups
       title: Group
@@ -46,16 +46,15 @@ options:
         - name: 'peto-peto'
           title: 'Peto-Peto'
 
+    - name: testspw
+      title: Pairwise comparisons
+      type: Bool
+      default: false
+      
     - name: sc
       title: Survival curve
       type: Bool
       default: true
-
-    - name: hf
-      title: Hazard function
-      type: Bool
-      default: false
-      hidden: true
 
     - name: chf
       title: Cumulative hazard function
@@ -71,4 +70,24 @@ options:
       title: Censored events
       type: Bool
       default: false
+  
+    - name: risk
+      title: Risk table
+      type: Bool
+      default: false
+      
+    - name: median
+      title: Median(s)
+      type: Bool
+      default: false
+      
+    - name: logscale
+      title: Log scale
+      type: Bool
+      default: false
+      
+    - name: units
+      title: Time units
+      type: String
+      default: ""
 ...

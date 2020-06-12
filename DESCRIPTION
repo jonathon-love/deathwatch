@@ -9,5 +9,5 @@ Description: Survival analysis for jamovi (see <https://www.jamovi.org> for
 License: AGPL3
 Encoding: UTF-8
 LazyData: true
-Imports: survival, EnvStats, ggfortify, jmvcore (>= 0.8), R6
+Imports: survival, EnvStats, ggfortify, jmvcore (>= 0.8), R6, coin, survminer
 RoxygenNote: 6.0.1

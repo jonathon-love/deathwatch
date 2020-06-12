@@ -6,16 +6,20 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
     inherit = jmvcore::Options,
     public = list(
         initialize = function(
+            elapsed = NULL,
             event = NULL,
             eventLevel = NULL,
-            elapsed = NULL,
             groups = NULL,
             tests = NULL,
+            testspw = FALSE,
             sc = TRUE,
-            hf = FALSE,
             chf = FALSE,
             ci = FALSE,
-            cens = FALSE, ...) {
+            cens = FALSE,
+            risk = FALSE,
+            median = FALSE,
+            logscale = FALSE,
+            units = "", ...) {
 
             super$initialize(
                 package='deathwatch',
@@ -23,17 +27,6 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 requiresData=TRUE,
                 ...)
 
-            private$..event <- jmvcore::OptionVariable$new(
-                "event",
-                event,
-                suggested=list(
-                    "nominal"),
-                permitted=list(
-                    "factor"))
-            private$..eventLevel <- jmvcore::OptionLevel$new(
-                "eventLevel",
-                eventLevel,
-                variable="(event)")
             private$..elapsed <- jmvcore::OptionVariable$new(
                 "elapsed",
                 elapsed,
@@ -41,6 +34,19 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                     "continuous"),
                 permitted=list(
                     "numeric"))
+            private$..event <- jmvcore::OptionVariable$new(
+                "event",
+                event,
+                suggested=list(
+                    "continuous",
+                    "nominal"),
+                permitted=list(
+                    "factor",
+                    "numeric"))
+            private$..eventLevel <- jmvcore::OptionLevel$new(
+                "eventLevel",
+                eventLevel,
+                variable="(event)")
             private$..groups <- jmvcore::OptionVariable$new(
                 "groups",
                 groups,
@@ -56,15 +62,14 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                     "gehan",
                     "tarone-ware",
                     "peto-peto"))
+            private$..testspw <- jmvcore::OptionBool$new(
+                "testspw",
+                testspw,
+                default=FALSE)
             private$..sc <- jmvcore::OptionBool$new(
                 "sc",
                 sc,
                 default=TRUE)
-            private$..hf <- jmvcore::OptionBool$new(
-                "hf",
-                hf,
-                default=FALSE,
-                hidden=TRUE)
             private$..chf <- jmvcore::OptionBool$new(
                 "chf",
                 chf,
@@ -77,49 +82,78 @@ survOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 "cens",
                 cens,
                 default=FALSE)
+            private$..risk <- jmvcore::OptionBool$new(
+                "risk",
+                risk,
+                default=FALSE)
+            private$..median <- jmvcore::OptionBool$new(
+                "median",
+                median,
+                default=FALSE)
+            private$..logscale <- jmvcore::OptionBool$new(
+                "logscale",
+                logscale,
+                default=FALSE)
+            private$..units <- jmvcore::OptionString$new(
+                "units",
+                units,
+                default="")
 
+            self$.addOption(private$..elapsed)
             self$.addOption(private$..event)
             self$.addOption(private$..eventLevel)
-            self$.addOption(private$..elapsed)
             self$.addOption(private$..groups)
             self$.addOption(private$..tests)
+            self$.addOption(private$..testspw)
             self$.addOption(private$..sc)
-            self$.addOption(private$..hf)
             self$.addOption(private$..chf)
             self$.addOption(private$..ci)
             self$.addOption(private$..cens)
+            self$.addOption(private$..risk)
+            self$.addOption(private$..median)
+            self$.addOption(private$..logscale)
+            self$.addOption(private$..units)
         }),
     active = list(
+        elapsed = function() private$..elapsed$value,
         event = function() private$..event$value,
         eventLevel = function() private$..eventLevel$value,
-        elapsed = function() private$..elapsed$value,
         groups = function() private$..groups$value,
         tests = function() private$..tests$value,
+        testspw = function() private$..testspw$value,
         sc = function() private$..sc$value,
-        hf = function() private$..hf$value,
         chf = function() private$..chf$value,
         ci = function() private$..ci$value,
-        cens = function() private$..cens$value),
+        cens = function() private$..cens$value,
+        risk = function() private$..risk$value,
+        median = function() private$..median$value,
+        logscale = function() private$..logscale$value,
+        units = function() private$..units$value),
     private = list(
+        ..elapsed = NA,
         ..event = NA,
         ..eventLevel = NA,
-        ..elapsed = NA,
         ..groups = NA,
         ..tests = NA,
+        ..testspw = NA,
         ..sc = NA,
-        ..hf = NA,
         ..chf = NA,
         ..ci = NA,
-        ..cens = NA)
+        ..cens = NA,
+        ..risk = NA,
+        ..median = NA,
+        ..logscale = NA,
+        ..units = NA)
 )
 
 survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
         summary = function() private$.items[["summary"]],
+        medianestimates = function() private$.items[["medianestimates"]],
         tests = function() private$.items[["tests"]],
+        testspw = function() private$.items[["testspw"]],
         sc = function() private$.items[["sc"]],
-        hf = function() private$.items[["hf"]],
         chf = function() private$.items[["chf"]]),
     private = list(),
     public=list(
@@ -131,7 +165,7 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
             self$add(jmvcore::Table$new(
                 options=options,
                 name="summary",
-                title="Survival Analysis",
+                title="Events Summary",
                 clearWith=list(
                     "event",
                     "eventLevel",
@@ -145,30 +179,165 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                         `content`="($key)", 
                         `visible`="(groups)"),
                     list(
-                        `name`="censored", 
-                        `title`="Censored", 
-                        `type`="integer"),
-                    list(
-                        `name`="events", 
-                        `title`="Events", 
-                        `type`="integer"),
-                    list(
                         `name`="n", 
                         `title`="N", 
                         `type`="integer"),
                     list(
-                        `name`="prop", 
-                        `title`="Proportion", 
-                        `type`="number", 
-                        `format`="pc"),
+                        `name`="censored", 
+                        `title`="Censored", 
+                        `type`="integer"),
+                    list(
+                        `name`="obs", 
+                        `title`="Observed Events", 
+                        `type`="integer"),
+                    list(
+                        `name`="exp", 
+                        `title`="Expected Events", 
+                        `type`="number"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="medianestimates",
+                title="Median Estimates",
+                clearWith=list(
+                    "times",
+                    "status"),
+                columns=list(
+                    list(
+                        `name`="group", 
+                        `title`="", 
+                        `type`="text", 
+                        `content`="($key)", 
+                        `visible`="(groups)"),
                     list(
                         `name`="median", 
-                        `title`="Median"))))
+                        `title`="Median", 
+                        `type`="number"),
+                    list(
+                        `name`="cilb", 
+                        `title`="Lower", 
+                        `type`="number"),
+                    list(
+                        `name`="ciub", 
+                        `title`="Upper", 
+                        `type`="number"))))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="tests",
-                title="Tests",
+                title="Analysis of the differences",
                 visible="(tests)",
+                clearWith=list(
+                    "event",
+                    "eventLevel",
+                    "elapsed",
+                    "groups"),
+                columns=list(
+                    list(
+                        `name`="stat[logrank]", 
+                        `title`="Test", 
+                        `type`="text", 
+                        `refs`=list(
+                            "survival1",
+                            "survival2"), 
+                        `content`="Log-rank", 
+                        `visible`="(tests:logrank)"),
+                    list(
+                        `name`="stat[gehan]", 
+                        `title`="Test", 
+                        `type`="text", 
+                        `refs`=list(
+                            "coin1",
+                            "coin2"), 
+                        `content`="Gehan", 
+                        `visible`="(tests:gehan)"),
+                    list(
+                        `name`="stat[tarone-ware]", 
+                        `title`="Test", 
+                        `type`="text", 
+                        `refs`=list(
+                            "coin1",
+                            "coin2"), 
+                        `content`="Tarone-Ware", 
+                        `visible`="(tests:tarone-ware)"),
+                    list(
+                        `name`="stat[peto-peto]", 
+                        `title`="Test", 
+                        `type`="text", 
+                        `refs`=list(
+                            "survival1",
+                            "survival2"), 
+                        `content`="Peto-Peto", 
+                        `visible`="(tests:peto-peto)"),
+                    list(
+                        `name`="chisqr[logrank]", 
+                        `title`="\u03C7\u00B2", 
+                        `type`="number", 
+                        `visible`="(tests:logrank)"),
+                    list(
+                        `name`="chisqr[gehan]", 
+                        `title`="\u03C7\u00B2", 
+                        `type`="number", 
+                        `visible`="(tests:gehan)"),
+                    list(
+                        `name`="chisqr[tarone-ware]", 
+                        `title`="\u03C7\u00B2", 
+                        `type`="number", 
+                        `visible`="(tests:tarone-ware)"),
+                    list(
+                        `name`="chisqr[peto-peto]", 
+                        `title`="\u03C7\u00B2", 
+                        `type`="number", 
+                        `visible`="(tests:peto-peto)"),
+                    list(
+                        `name`="df[logrank]", 
+                        `title`="df", 
+                        `type`="integer", 
+                        `visible`="(tests:logrank)"),
+                    list(
+                        `name`="df[gehan]", 
+                        `title`="df", 
+                        `type`="integer", 
+                        `visible`="(tests:gehan)"),
+                    list(
+                        `name`="df[tarone-ware]", 
+                        `title`="df", 
+                        `type`="integer", 
+                        `visible`="(tests:tarone-ware)"),
+                    list(
+                        `name`="df[peto-peto]", 
+                        `title`="df", 
+                        `type`="integer", 
+                        `visible`="(tests:peto-peto)"),
+                    list(
+                        `name`="pvalue[logrank]", 
+                        `title`="p", 
+                        `type`="number", 
+                        `format`="zto,pvalue", 
+                        `visible`="(tests:logrank)"),
+                    list(
+                        `name`="pvalue[gehan]", 
+                        `title`="p", 
+                        `type`="number", 
+                        `format`="zto,pvalue", 
+                        `visible`="(tests:gehan)"),
+                    list(
+                        `name`="pvalue[tarone-ware]", 
+                        `title`="p", 
+                        `type`="number", 
+                        `format`="zto,pvalue", 
+                        `visible`="(tests:tarone-ware)"),
+                    list(
+                        `name`="pvalue[peto-peto]", 
+                        `title`="p", 
+                        `type`="number", 
+                        `format`="zto,pvalue", 
+                        `visible`="(tests:peto-peto)"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="testspw",
+                title="Pairwise Comparisons",
+                visible="(testspw)",
+                refs=list(
+                    "multcomp"),
                 clearWith=list(
                     "event",
                     "eventLevel",
@@ -186,99 +355,99 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                         `type`="text", 
                         `content`="($key[2])"),
                     list(
-                        `name`="stat[logrank]", 
-                        `title`="", 
+                        `name`="statpw[logrank]", 
+                        `title`="Test", 
                         `type`="text", 
                         `content`="Log-rank", 
                         `visible`="(tests:logrank)"),
                     list(
-                        `name`="stat[gehan]", 
-                        `title`="", 
+                        `name`="statpw[gehan]", 
+                        `title`="Test", 
                         `type`="text", 
                         `content`="Gehan", 
                         `visible`="(tests:gehan)"),
                     list(
-                        `name`="stat[tarone-ware]", 
-                        `title`="", 
+                        `name`="statpw[tarone-ware]", 
+                        `title`="Test", 
                         `type`="text", 
                         `content`="Tarone-Ware", 
                         `visible`="(tests:tarone-ware)"),
                     list(
-                        `name`="stat[peto-peto]", 
-                        `title`="", 
+                        `name`="statpw[peto-peto]", 
+                        `title`="Test", 
                         `type`="text", 
                         `content`="Peto-Peto", 
                         `visible`="(tests:peto-peto)"),
                     list(
-                        `name`="nu[logrank]", 
+                        `name`="nupw[logrank]", 
                         `title`="\u03BD", 
                         `visible`="(tests:logrank)"),
                     list(
-                        `name`="nu[gehan]", 
+                        `name`="nupw[gehan]", 
                         `title`="\u03BD", 
                         `visible`="(tests:gehan)"),
                     list(
-                        `name`="nu[tarone-ware]", 
+                        `name`="nupw[tarone-ware]", 
                         `title`="\u03BD", 
                         `visible`="(tests:tarone-ware)"),
                     list(
-                        `name`="nu[peto-peto]", 
+                        `name`="nupw[peto-peto]", 
                         `title`="\u03BD", 
                         `visible`="(tests:peto-peto)"),
                     list(
-                        `name`="nuse[logrank]", 
+                        `name`="nusepw[logrank]", 
                         `title`="SE", 
                         `visible`="(tests:logrank)"),
                     list(
-                        `name`="nuse[gehan]", 
+                        `name`="nusepw[gehan]", 
                         `title`="SE", 
                         `visible`="(tests:gehan)"),
                     list(
-                        `name`="nuse[tarone-ware]", 
+                        `name`="nusepw[tarone-ware]", 
                         `title`="SE", 
                         `visible`="(tests:tarone-ware)"),
                     list(
-                        `name`="nuse[peto-peto]", 
+                        `name`="nusepw[peto-peto]", 
                         `title`="SE", 
                         `visible`="(tests:peto-peto)"),
                     list(
-                        `name`="z[logrank]", 
+                        `name`="zpw[logrank]", 
                         `title`="z", 
                         `format`="zto,p", 
                         `visible`="(tests:logrank)"),
                     list(
-                        `name`="z[gehan]", 
+                        `name`="zpw[gehan]", 
                         `title`="z", 
                         `format`="zto,p", 
                         `visible`="(tests:gehan)"),
                     list(
-                        `name`="z[tarone-ware]", 
+                        `name`="zpw[tarone-ware]", 
                         `title`="z", 
                         `visible`="(tests:tarone-ware)"),
                     list(
-                        `name`="z[peto-peto]", 
+                        `name`="zpw[peto-peto]", 
                         `title`="z", 
                         `visible`="(tests:peto-peto)"),
                     list(
-                        `name`="p[logrank]", 
+                        `name`="ppw[logrank]", 
                         `title`="p", 
                         `type`="number", 
                         `format`="zto,pvalue", 
                         `visible`="(tests:logrank)"),
                     list(
-                        `name`="p[gehan]", 
+                        `name`="ppw[gehan]", 
                         `title`="p", 
                         `type`="number", 
                         `format`="zto,pvalue", 
                         `visible`="(tests:gehan)"),
                     list(
-                        `name`="p[tarone-ware]", 
+                        `name`="ppw[tarone-ware]", 
                         `title`="p", 
                         `type`="number", 
                         `format`="zto,pvalue", 
                         `visible`="(tests:tarone-ware)"),
                     list(
-                        `name`="p[peto-peto]", 
+                        `name`="ppw[peto-peto]", 
                         `title`="p", 
                         `type`="number", 
                         `format`="zto,pvalue", 
@@ -297,20 +466,10 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                     "elapsed",
                     "groups",
                     "cens",
-                    "ci")))
-            self$add(jmvcore::Image$new(
-                options=options,
-                name="hf",
-                title="Hazard Function",
-                visible=FALSE,
-                width=600,
-                height=400,
-                renderFun=".plot",
-                clearWith=list(
-                    "event",
-                    "eventLevel",
-                    "elapsed",
-                    "groups")))
+                    "ci",
+                    "units",
+                    "risk",
+                    "median")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="chf",
@@ -323,7 +482,9 @@ survResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                     "event",
                     "eventLevel",
                     "elapsed",
-                    "groups")))}))
+                    "groups",
+                    "units",
+                    "logscale")))}))
 
 survBase <- if (requireNamespace('jmvcore')) R6::R6Class(
     "survBase",
@@ -341,29 +502,35 @@ survBase <- if (requireNamespace('jmvcore')) R6::R6Class(
                 analysisId = analysisId,
                 revision = revision,
                 pause = NULL,
-                completeWhenFilled = FALSE)
+                completeWhenFilled = FALSE,
+                requiresMissings = FALSE)
         }))
 
 #' Survival Analysis
 #'
 #' 
 #' @param data .
+#' @param elapsed .
 #' @param event .
 #' @param eventLevel .
-#' @param elapsed .
 #' @param groups .
 #' @param tests .
+#' @param testspw .
 #' @param sc .
-#' @param hf .
 #' @param chf .
 #' @param ci .
 #' @param cens .
+#' @param risk .
+#' @param median .
+#' @param logscale .
+#' @param units .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$summary} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$medianestimates} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$tests} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$testspw} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$sc} \tab \tab \tab \tab \tab an image \cr
-#'   \code{results$hf} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$chf} \tab \tab \tab \tab \tab an image \cr
 #' }
 #'
@@ -376,44 +543,51 @@ survBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #' @export
 surv <- function(
     data,
+    elapsed,
     event,
     eventLevel,
-    elapsed,
     groups,
     tests,
+    testspw = FALSE,
     sc = TRUE,
-    hf = FALSE,
     chf = FALSE,
     ci = FALSE,
-    cens = FALSE) {
+    cens = FALSE,
+    risk = FALSE,
+    median = FALSE,
+    logscale = FALSE,
+    units = "") {
 
     if ( ! requireNamespace('jmvcore'))
         stop('surv requires jmvcore to be installed (restart may be required)')
 
-    if ( ! missing(event)) event <- jmvcore::resolveQuo(jmvcore::enquo(event))
     if ( ! missing(elapsed)) elapsed <- jmvcore::resolveQuo(jmvcore::enquo(elapsed))
+    if ( ! missing(event)) event <- jmvcore::resolveQuo(jmvcore::enquo(event))
     if ( ! missing(groups)) groups <- jmvcore::resolveQuo(jmvcore::enquo(groups))
     if (missing(data))
         data <- jmvcore::marshalData(
             parent.frame(),
-            `if`( ! missing(event), event, NULL),
             `if`( ! missing(elapsed), elapsed, NULL),
+            `if`( ! missing(event), event, NULL),
             `if`( ! missing(groups), groups, NULL))
 
-    for (v in event) if (v %in% names(data)) data[[v]] <- as.factor(data[[v]])
     for (v in groups) if (v %in% names(data)) data[[v]] <- as.factor(data[[v]])
 
     options <- survOptions$new(
+        elapsed = elapsed,
         event = event,
         eventLevel = eventLevel,
-        elapsed = elapsed,
         groups = groups,
         tests = tests,
+        testspw = testspw,
         sc = sc,
-        hf = hf,
         chf = chf,
         ci = ci,
-        cens = cens)
+        cens = cens,
+        risk = risk,
+        median = median,
+        logscale = logscale,
+        units = units)
 
     analysis <- survClass$new(
         options = options,
