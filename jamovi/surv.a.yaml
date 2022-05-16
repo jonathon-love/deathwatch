@@ -41,9 +41,9 @@ options:
           title: 'Log-rank'
         - name: gehan
           title: Gehan
-        - name: 'tarone-ware'
+        - name: 'taroneware'
           title: 'Tarone-Ware'
-        - name: 'peto-peto'
+        - name: 'petopeto'
           title: 'Peto-Peto'
 
     - name: testspw

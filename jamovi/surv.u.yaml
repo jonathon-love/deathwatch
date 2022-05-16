@@ -47,15 +47,15 @@ children:
             optionName: tests
             optionPart: gehan
             enable: (groups)
-          - name: tests_tarone-ware
+          - name: tests_taroneware
             type: CheckBox
             optionName: tests
-            optionPart: tarone-ware
+            optionPart: taroneware
             enable: (groups)
-          - name: tests_peto-peto
+          - name: tests_petopeto
             type: CheckBox
             optionName: tests
-            optionPart: peto-peto
+            optionPart: petopeto
             enable: (groups)
       - type: Label
         label: Pairwise comparisons

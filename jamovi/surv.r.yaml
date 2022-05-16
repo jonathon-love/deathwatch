@@ -80,18 +80,18 @@ items:
           refs: [coin1,coin2]
           content: Gehan
           visible: (tests:gehan)
-        - name: stat[tarone-ware]
+        - name: stat[taroneware]
           title: 'Test'
           type: text
           refs: [coin1,coin2]
           content: Tarone-Ware
-          visible: (tests:tarone-ware)
-        - name: stat[peto-peto]
+          visible: (tests:taroneware)
+        - name: stat[petopeto]
           title: 'Test'
           type: text
           refs: [survival1,survival2]
           content: Peto-Peto
-          visible: (tests:peto-peto)
+          visible: (tests:petopeto)
         - name: chisqr[logrank]
           title: χ²
           type: number
@@ -100,14 +100,14 @@ items:
           title: χ²
           type: number
           visible: (tests:gehan)
-        - name: chisqr[tarone-ware]
+        - name: chisqr[taroneware]
           title: χ²
           type: number
-          visible: (tests:tarone-ware)
-        - name: chisqr[peto-peto]
+          visible: (tests:taroneware)
+        - name: chisqr[petopeto]
           title: χ²
           type: number
-          visible: (tests:peto-peto)
+          visible: (tests:petopeto)
         - name: df[logrank]
           title: df
           type: integer
@@ -116,14 +116,14 @@ items:
           title: df
           type: integer
           visible: (tests:gehan)
-        - name: df[tarone-ware]
+        - name: df[taroneware]
           title: df
           type: integer
-          visible: (tests:tarone-ware)
-        - name: df[peto-peto]
+          visible: (tests:taroneware)
+        - name: df[petopeto]
           title: df
           type: integer
-          visible: (tests:peto-peto)
+          visible: (tests:petopeto)
         - name: pvalue[logrank]
           title: p
           type: number
@@ -134,16 +134,16 @@ items:
           type: number
           format: zto,pvalue
           visible: (tests:gehan)
-        - name: pvalue[tarone-ware]
+        - name: pvalue[taroneware]
           title: p
           type: number
           format: zto,pvalue
-          visible: (tests:tarone-ware)
-        - name: pvalue[peto-peto]
+          visible: (tests:taroneware)
+        - name: pvalue[petopeto]
           title: p
           type: number
           format: zto,pvalue
-          visible: (tests:peto-peto)
+          visible: (tests:petopeto)
 
     - name: testspw
       title: Pairwise Comparisons
@@ -174,40 +174,40 @@ items:
           type: text
           content: Gehan
           visible: (tests:gehan)
-        - name: statpw[tarone-ware]
+        - name: statpw[taroneware]
           title: 'Test'
           type: text
           content: Tarone-Ware
-          visible: (tests:tarone-ware)
-        - name: statpw[peto-peto]
+          visible: (tests:taroneware)
+        - name: statpw[petopeto]
           title: 'Test'
           type: text
           content: Peto-Peto
-          visible: (tests:peto-peto)
+          visible: (tests:petopeto)
         - name: nupw[logrank]
           title: ν
           visible: (tests:logrank)
         - name: nupw[gehan]
           title: ν
           visible: (tests:gehan)
-        - name: nupw[tarone-ware]
+        - name: nupw[taroneware]
           title: ν
-          visible: (tests:tarone-ware)
-        - name: nupw[peto-peto]
+          visible: (tests:taroneware)
+        - name: nupw[petopeto]
           title: ν
-          visible: (tests:peto-peto)
+          visible: (tests:petopeto)
         - name: nusepw[logrank]
           title: SE
           visible: (tests:logrank)
         - name: nusepw[gehan]
           title: SE
           visible: (tests:gehan)
-        - name: nusepw[tarone-ware]
+        - name: nusepw[taroneware]
           title: SE
-          visible: (tests:tarone-ware)
-        - name: nusepw[peto-peto]
+          visible: (tests:taroneware)
+        - name: nusepw[petopeto]
           title: SE
-          visible: (tests:peto-peto)
+          visible: (tests:petopeto)
         - name: zpw[logrank]
           title: z
           format: zto,p
@@ -216,12 +216,12 @@ items:
           title: z
           format: zto,p
           visible: (tests:gehan)
-        - name: zpw[tarone-ware]
+        - name: zpw[taroneware]
           title: z
-          visible: (tests:tarone-ware)
-        - name: zpw[peto-peto]
+          visible: (tests:taroneware)
+        - name: zpw[petopeto]
           title: z
-          visible: (tests:peto-peto)
+          visible: (tests:petopeto)
         - name: ppw[logrank]
           title: p
           type: number
@@ -232,16 +232,16 @@ items:
           type: number
           format: zto,pvalue
           visible: (tests:gehan)
-        - name: ppw[tarone-ware]
+        - name: ppw[taroneware]
           title: p
           type: number
           format: zto,pvalue
-          visible: (tests:tarone-ware)
-        - name: ppw[peto-peto]
+          visible: (tests:taroneware)
+        - name: ppw[petopeto]
           title: p
           type: number
           format: zto,pvalue
-          visible: (tests:peto-peto)
+          visible: (tests:petopeto)
           
           
     - name: sc
