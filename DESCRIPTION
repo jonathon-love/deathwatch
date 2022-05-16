@@ -1,7 +1,7 @@
 Package: deathwatch
 Type: Package
 Title: Survival Analysis
-Version: 1.1.0
+Version: 1.1.1
 Author: Alberto Alvarez-Iglesias, Jonathon Love
 Maintainer: Jonathon Love <jon@thon.cc>
 Description: Survival analysis for jamovi (see <https://www.jamovi.org> for
