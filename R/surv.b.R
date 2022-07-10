@@ -92,14 +92,13 @@ survClass <- R6::R6Class(
             ###########################
             ### Creates the data frame
             ###########################
-            #---- If censor indicator is continuous
-            if (class(self$data[[eventVarName]])=="numeric" | class(self$data[[eventVarName]])=="integer") {
-                tmpDat <- data.frame(times = as.numeric(self$data[[elapsedVarName]]),
+            if (class(self$data[[eventVarName]])=="numeric" || class(self$data[[eventVarName]])=="integer") {
+                #---- If censor indicator is continuous
+                tmpDat <- data.frame(times = jmvcore::toNumeric(self$data[[elapsedVarName]]),
                                      status = self$data[[eventVarName]])
-            }
-            #---- If censor indicator is categorical
-            if ( ! (class(self$data[[eventVarName]])=="numeric" | class(self$data[[eventVarName]])=="integer") ) {
-                tmpDat <- data.frame(times = as.numeric(self$data[[elapsedVarName]]),
+            } else {
+                #---- If censor indicator is categorical
+                tmpDat <- data.frame(times = jmvcore::toNumeric(self$data[[elapsedVarName]]),
                                      status = ifelse(self$data[[eventVarName]] == self$options$eventLevel, 1, 0))
             }
 
