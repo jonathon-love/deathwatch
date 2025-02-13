@@ -192,15 +192,15 @@ survClass <- R6::R6Class(
                 # -------   Logrank test
                 fit <- survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat)
                 dat1 <- data.frame(var = "Log-Rank",chisqr = fit$chisq)
-                # -------   Peto-Peto
-                fit <- survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat,rho=1)
-                dat2 <- data.frame(var = "Peto-Peto",chisqr = fit$chisq)
                 # -------  Gehan
                 fit <- coin::logrank_test(survival::Surv(times, status) ~ group, data=tmpDat,type="Gehan-Breslow")
-                dat3 <- data.frame(var = "Gehan",chisqr = coin::statistic(fit)^2)
+                dat2 <- data.frame(var = "Gehan",chisqr = coin::statistic(fit)^2)
                 # -------  Tarone-Ware
                 fit <- coin::logrank_test(survival::Surv(times, status) ~ group, data=tmpDat,type="Tarone-Ware")
-                dat4 <- data.frame(var = "Tarone-Ware",chisqr = coin::statistic(fit)^2)
+                dat3 <- data.frame(var = "Tarone-Ware",chisqr = coin::statistic(fit)^2)
+                # -------   Peto-Peto
+                fit <- survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat,rho=1)
+                dat4 <- data.frame(var = "Peto-Peto",chisqr = fit$chisq)
                 # ------- bind the methods
                 DF <- rbind(dat1,dat2,dat3,dat4)
                 # ------- add the df and the p-values
