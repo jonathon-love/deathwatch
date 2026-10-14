@@ -89,3 +89,57 @@ test_that("Gehan and Tarone-Ware agree with coin for more than two groups", {
         expect_equal(table$getCell(rowNo = 1, paste0("pvalue[", test, "]"))$value, as.numeric(coin::pvalue(fit)))
     }
 })
+
+test_that("numeric 1/2 event coding gives the same results as 0/1 coding", {
+    data <- lungData()
+
+    args <- list(
+        data = data,
+        elapsed = "time",
+        eventLevel = NULL,
+        groups = "ecog",
+        tests = c("logrank", "gehan"),
+        testspw = TRUE,
+        sc = FALSE)
+
+    r01 <- do.call(deathwatch::surv, c(args, event = "status01"))
+    r12 <- do.call(deathwatch::surv, c(args, event = "status12"))
+
+    expect_equal(r12$summary$asDF, r01$summary$asDF)
+    expect_equal(r12$medianestimates$asDF, r01$medianestimates$asDF)
+    expect_equal(r12$tests$asDF, r01$tests$asDF)
+    expect_equal(r12$testspw$asDF, r01$testspw$asDF)
+})
+
+test_that("numeric event variables not coded 0/1 or 1/2 are rejected", {
+    data <- lungData()
+    data$status012 <- data$status01
+    data$status012[1:5] <- 2
+
+    expect_error(
+        deathwatch::surv(
+            data = data,
+            elapsed = "time",
+            event = "status012",
+            eventLevel = NULL,
+            groups = NULL,
+            tests = NULL,
+            sc = FALSE),
+        "coded 0 \\(censored\\) and 1 \\(event\\)")
+})
+
+test_that("a grouping variable with a single level is rejected", {
+    data <- lungData()
+    data$one <- factor(rep("a", nrow(data)))
+
+    expect_error(
+        deathwatch::surv(
+            data = data,
+            elapsed = "time",
+            event = "event",
+            eventLevel = "dead",
+            groups = "one",
+            tests = "logrank",
+            sc = FALSE),
+        "at least two levels")
+})
