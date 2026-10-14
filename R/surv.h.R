@@ -392,52 +392,62 @@ survResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="nupw[logrank]", 
                         `title`="\u03BD", 
+                        `type`="number", 
                         `visible`="(tests:logrank)"),
                     list(
                         `name`="nupw[gehan]", 
                         `title`="\u03BD", 
+                        `type`="number", 
                         `visible`="(tests:gehan)"),
                     list(
                         `name`="nupw[taroneware]", 
                         `title`="\u03BD", 
+                        `type`="number", 
                         `visible`="(tests:taroneware)"),
                     list(
                         `name`="nupw[petopeto]", 
                         `title`="\u03BD", 
+                        `type`="number", 
                         `visible`="(tests:petopeto)"),
                     list(
                         `name`="nusepw[logrank]", 
                         `title`="SE", 
+                        `type`="number", 
                         `visible`="(tests:logrank)"),
                     list(
                         `name`="nusepw[gehan]", 
                         `title`="SE", 
+                        `type`="number", 
                         `visible`="(tests:gehan)"),
                     list(
                         `name`="nusepw[taroneware]", 
                         `title`="SE", 
+                        `type`="number", 
                         `visible`="(tests:taroneware)"),
                     list(
                         `name`="nusepw[petopeto]", 
                         `title`="SE", 
+                        `type`="number", 
                         `visible`="(tests:petopeto)"),
                     list(
                         `name`="zpw[logrank]", 
                         `title`="z", 
-                        `format`="zto,p", 
+                        `type`="number", 
                         `visible`="(tests:logrank)"),
                     list(
                         `name`="zpw[gehan]", 
                         `title`="z", 
-                        `format`="zto,p", 
+                        `type`="number", 
                         `visible`="(tests:gehan)"),
                     list(
                         `name`="zpw[taroneware]", 
                         `title`="z", 
+                        `type`="number", 
                         `visible`="(tests:taroneware)"),
                     list(
                         `name`="zpw[petopeto]", 
                         `title`="z", 
+                        `type`="number", 
                         `visible`="(tests:petopeto)"),
                     list(
                         `name`="ppw[logrank]", 
