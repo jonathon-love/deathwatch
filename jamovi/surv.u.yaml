@@ -33,6 +33,7 @@ children:
   - type: Label
     name: tests
     label: Tests of Equality
+    stretchFactor: 1
     children:
       - name: tests_logrank
         type: CheckBox
@@ -59,6 +60,7 @@ children:
         enable: (groups)
   - type: Label
     label: Plots
+    stretchFactor: 1
     cell:
       row: 1
       column: 1
