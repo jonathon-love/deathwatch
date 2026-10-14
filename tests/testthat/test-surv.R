@@ -1,3 +1,32 @@
+test_that("overall tests are matched to the test by name, not position", {
+    data <- lungData()
+
+    r <- deathwatch::surv(
+        data = data,
+        elapsed = "time",
+        event = "event",
+        eventLevel = "dead",
+        groups = "sex",
+        tests = "gehan",
+        sc = FALSE)
+
+    tmpDat <- na.omit(data.frame(
+        times = data$time,
+        status = as.integer(data$event == "dead"),
+        group = data$sex))
+    expected <- coin::statistic(coin::logrank_test(
+        survival::Surv(times, status) ~ group,
+        data = tmpDat,
+        type = "Gehan-Breslow"))^2
+
+    table <- r$tests
+    expect_equal(table$getCell(rowNo = 1, "chisqr[gehan]")$value, unname(expected[1]))
+    expect_equal(table$getCell(rowNo = 1, "df[gehan]")$value, 1)
+    expect_equal(
+        table$getCell(rowNo = 1, "pvalue[gehan]")$value,
+        pchisq(unname(expected[1]), 1, lower.tail = FALSE))
+})
+
 test_that("pairwise p-values are Bonferroni-corrected", {
     data <- lungData()
 
