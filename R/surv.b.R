@@ -128,6 +128,9 @@ survClass <- R6::R6Class(
             ############################
             tmpDat <- na.omit(tmpDat)
 
+            if (any(tmpDat$times < 0))
+                jmvcore::reject('Time elapsed cannot be negative')
+
 
             ############################
             ### Check if the data.frame

@@ -222,3 +222,19 @@ test_that("a factor event variable without an event level is rejected", {
             sc = FALSE),
         "choose the event level")
 })
+
+test_that("negative times are rejected", {
+    data <- lungData()
+    data$time[1:3] <- -5
+
+    expect_error(
+        deathwatch::surv(
+            data = data,
+            elapsed = "time",
+            event = "event",
+            eventLevel = "dead",
+            groups = NULL,
+            tests = NULL,
+            sc = FALSE),
+        "cannot be negative")
+})
