@@ -107,6 +107,8 @@ survClass <- R6::R6Class(
                                      status = status)
             } else {
                 #---- If censor indicator is categorical
+                if (is.null(self$options$eventLevel))
+                    jmvcore::reject('Please choose the event level')
                 tmpDat <- data.frame(times = jmvcore::toNumeric(self$data[[elapsedVarName]]),
                                      status = ifelse(self$data[[eventVarName]] == self$options$eventLevel, 1, 0))
             }
