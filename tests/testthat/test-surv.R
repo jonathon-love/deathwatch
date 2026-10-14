@@ -209,3 +209,16 @@ test_that("plots render without storing the data in their state", {
         expect_true(file.exists(path))
     }
 })
+
+test_that("a factor event variable without an event level is rejected", {
+    expect_error(
+        deathwatch::surv(
+            data = lungData(),
+            elapsed = "time",
+            event = "event",
+            eventLevel = NULL,
+            groups = NULL,
+            tests = NULL,
+            sc = FALSE),
+        "choose the event level")
+})
