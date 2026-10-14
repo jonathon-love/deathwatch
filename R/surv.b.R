@@ -2,6 +2,7 @@
 
 #' @importFrom R6 R6Class
 #' @importFrom jmvcore toNumeric
+#' @importFrom jmvcore .
 survClass <- R6::R6Class(
     "survClass",
     inherit = survBase,
@@ -85,10 +86,10 @@ survClass <- R6::R6Class(
             elapsedVarName <- self$options$elapsed
 
             if (nrow(self$data) == 0)
-                jmvcore::reject('Data contains no (complete) rows')
+                jmvcore::reject(.('Data contains no (complete) rows'))
 
             if ( ! is.null(self$options$groups) && length(private$.groups()) < 2)
-                jmvcore::reject('The grouping variable needs at least two levels')
+                jmvcore::reject(.('The grouping variable needs at least two levels'))
 
 
             ###########################
@@ -100,7 +101,7 @@ survClass <- R6::R6Class(
                 # follow survival::Surv(): 0/1 = censored/event, 1/2 = censored/event
                 if ( ! all(status %in% c(0, 1, NA))) {
                     if ( ! all(status %in% c(1, 2, NA)))
-                        jmvcore::reject('A numeric event variable must be coded 0 (censored) and 1 (event), or 1 (censored) and 2 (event). Otherwise, use a factor and choose the event level.')
+                        jmvcore::reject(.('A numeric event variable must be coded 0 (censored) and 1 (event), or 1 (censored) and 2 (event). Otherwise, use a factor and choose the event level.'))
                     status <- status - 1
                 }
                 tmpDat <- data.frame(times = jmvcore::toNumeric(self$data[[elapsedVarName]]),
@@ -108,7 +109,7 @@ survClass <- R6::R6Class(
             } else {
                 #---- If censor indicator is categorical
                 if (is.null(self$options$eventLevel))
-                    jmvcore::reject('Please choose the event level')
+                    jmvcore::reject(.('Please choose the event level'))
                 tmpDat <- data.frame(times = jmvcore::toNumeric(self$data[[elapsedVarName]]),
                                      status = ifelse(self$data[[eventVarName]] == self$options$eventLevel, 1, 0))
             }
@@ -129,7 +130,7 @@ survClass <- R6::R6Class(
             tmpDat <- na.omit(tmpDat)
 
             if (any(tmpDat$times < 0))
-                jmvcore::reject('Time elapsed cannot be negative')
+                jmvcore::reject(.('Time elapsed cannot be negative'))
 
 
             ############################
@@ -137,7 +138,7 @@ survClass <- R6::R6Class(
             ### contains data at all
             ############################
             if (nrow(tmpDat) == 0)
-                jmvcore::reject('Data contains no (complete) rows')
+                jmvcore::reject(.('Data contains no (complete) rows'))
 
             ############################
             ### Drop levels of the
@@ -147,7 +148,7 @@ survClass <- R6::R6Class(
             if ( ! is.null(self$options$groups)) {
                 tmpDat$group <- droplevels(tmpDat$group)
                 if (nlevels(tmpDat$group) < 2)
-                    jmvcore::reject('The grouping variable needs at least two levels with complete cases')
+                    jmvcore::reject(.('The grouping variable needs at least two levels with complete cases'))
             }
 
             tmpDat
@@ -164,7 +165,7 @@ survClass <- R6::R6Class(
 
             empty <- setdiff(private$.groups(), levels(tmpDat$group))
             if ( ! is.null(self$options$groups) && length(empty) > 0) {
-                note <- paste0('No complete cases for: ', paste(empty, collapse=', '))
+                note <- jmvcore::format(.('No complete cases for: {levels}'), levels=paste(empty, collapse=', '))
                 self$results$summary$setNote('empty', note)
                 self$results$medianestimates$setNote('empty', note)
             }
@@ -277,14 +278,14 @@ survClass <- R6::R6Class(
             ngroups <- length(groups)
 
             if (ngroups <= 2) {
-                tt$setNote("note0",paste("Grouping variable, ",self$options$groups,", must have 3 or more levels to perform this analysis.",sep="") )
+                tt$setNote("note0", jmvcore::format(.('Grouping variable, {var}, must have 3 or more levels to perform this analysis.'), var=self$options$groups))
                 return()
             }
             if ( ! self$options$testspw)
                 return()
 
             if (length(self$options$tests) == 0) {
-                tt$setNote('notests', 'Select at least one test to perform pairwise comparisons.')
+                tt$setNote('notests', .('Select at least one test to perform pairwise comparisons.'))
                 return()
             }
 
@@ -340,7 +341,7 @@ survClass <- R6::R6Class(
                 }
             }
 
-            tt$setNote("note","P-values are Bonferroni-corrected.")
+            tt$setNote("note", .("P-values are Bonferroni-corrected."))
 
         },
         .coinChisqr = function(data, type) {
@@ -373,26 +374,26 @@ survClass <- R6::R6Class(
                 legend <-"none"
                 legendtitle <- NULL
                 }
-            xlab <- "Time"
-            if (!self$options$units=="") xlab <- paste("Time (",self$options$units,")",sep="")
+            xlab <- .("Time")
+            if (!self$options$units=="") xlab <- jmvcore::format(.("Time ({units})"), units=self$options$units)
             survmedianline <-"none"
             if (self$options$median) survmedianline <- "hv"
 
 
             if (identical(image, self$results$sc)) {
                 func <- NULL
-                ylab <- "Survival Probability"
+                ylab <- .("Survival Probability")
             } else {
                 if (!self$options$logscale) {
                     func <- "cumhaz"
-                    ylab <- "Cumulative Hazard"
+                    ylab <- .("Cumulative Hazard")
                     ci <- FALSE
                     cens <- FALSE
                     risk <- FALSE
                     survmedianline <-"none"
                 } else {
                     func <- function(x) log(-log(x))
-                    ylab <- "Cumulative Hazard (log scale)"
+                    ylab <- .("Cumulative Hazard (log scale)")
                     ci <- FALSE
                     cens <- FALSE
                     risk <- FALSE

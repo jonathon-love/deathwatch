@@ -1,0 +1,249 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2021-07-26 12:08:06+01000\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"Language: c\n"
+
+#: surv/results/medianestimates.columns.superTitle
+msgid "95% Confidence Interval"
+msgstr ""
+
+#: R/surv.b.R
+msgid ""
+"A numeric event variable must be coded 0 (censored) and 1 (event), or 1 "
+"(censored) and 2 (event). Otherwise, use a factor and choose the event level."
+msgstr ""
+
+#: surv/results/summary.columns.title
+msgid "Censored"
+msgstr ""
+
+#: surv/options/cens.title
+msgid "Censored events"
+msgstr ""
+
+#: surv/options/ci.title
+msgid "Confidence intervals"
+msgstr ""
+
+#: R/surv.b.R
+msgid "Cumulative Hazard"
+msgstr ""
+
+#: R/surv.b.R
+msgid "Cumulative Hazard (log scale)"
+msgstr ""
+
+#: surv/options/chf.title
+msgid "Cumulative hazard function"
+msgstr ""
+
+#: surv/results/chf.title
+msgid "Cumulative Hazard Function"
+msgstr ""
+
+#: R/surv.b.R
+msgid "Data contains no (complete) rows"
+msgstr ""
+
+#: package.title
+#: package/analyses/surv.menuSubgroup
+#: surv/options.menuSubgroup
+msgid "Death Watch"
+msgstr ""
+
+#: surv/results/tests.columns.title
+msgid "df"
+msgstr ""
+
+#: surv/options/event.title
+#: surv/ui[0][1].label
+msgid "Event"
+msgstr ""
+
+#: surv/options/eventLevel.title
+msgid "Event level"
+msgstr ""
+
+#: surv/results/summary.title
+msgid "Events Summary"
+msgstr ""
+
+#: surv/results/summary.columns.title
+msgid "Expected Events"
+msgstr ""
+
+#: surv/options/tests/gehan.title
+#: surv/results/tests.columns.content
+#: surv/results/testspw.columns.content
+msgid "Gehan"
+msgstr ""
+
+#: surv/options/groups.title
+#: surv/ui[0][2].label
+msgid "Group"
+msgstr ""
+
+#: R/surv.b.R
+msgid ""
+"Grouping variable, {var}, must have 3 or more levels to perform this "
+"analysis."
+msgstr ""
+
+#: surv/options/logscale.title
+msgid "Log scale"
+msgstr ""
+
+#: surv/options/tests/logrank.title
+#: surv/results/tests.columns.content
+#: surv/results/testspw.columns.content
+msgid "Log-rank"
+msgstr ""
+
+#: surv/results/medianestimates.columns.title
+msgid "Lower"
+msgstr ""
+
+#: surv/results/medianestimates.columns.title
+msgid "Median"
+msgstr ""
+
+#: surv/results/medianestimates.title
+msgid "Median Estimates"
+msgstr ""
+
+#: surv/options/median.title
+msgid "Median line"
+msgstr ""
+
+#: R/surv.b.R
+msgid "No complete cases for: {levels}"
+msgstr ""
+
+#: surv/results/summary.columns.title
+msgid "Observed Events"
+msgstr ""
+
+#: R/surv.b.R
+msgid "P-values are Bonferroni-corrected."
+msgstr ""
+
+#: surv/options/testspw.title
+msgid "Pairwise comparisons"
+msgstr ""
+
+#: surv/results/testspw.title
+msgid "Pairwise Comparisons"
+msgstr ""
+
+#: surv/options/tests/petopeto.title
+#: surv/results/tests.columns.content
+#: surv/results/testspw.columns.content
+msgid "Peto-Peto"
+msgstr ""
+
+#: R/surv.b.R
+msgid "Please choose the event level"
+msgstr ""
+
+#: surv/ui[2].label
+msgid "Plots"
+msgstr ""
+
+#: surv/options/risk.title
+msgid "Risk table"
+msgstr ""
+
+#: surv/results/testspw.columns.title
+msgid "SE"
+msgstr ""
+
+#: R/surv.b.R
+msgid "Select at least one test to perform pairwise comparisons."
+msgstr ""
+
+#: package/analyses/surv.menuGroup
+#: surv/options.menuGroup
+msgid "Survival"
+msgstr ""
+
+#: package.description
+msgid "Survival analysis"
+msgstr ""
+
+#: package/analyses/surv.title
+#: package/analyses/surv.menuTitle
+#: surv/options.title
+#: surv/ui.title
+#: surv/results.title
+msgid "Survival Analysis"
+msgstr ""
+
+#: surv/options/sc.title
+msgid "Survival curve"
+msgstr ""
+
+#: surv/results/sc.title
+msgid "Survival Curve"
+msgstr ""
+
+#: R/surv.b.R
+msgid "Survival Probability"
+msgstr ""
+
+#: surv/options/tests/taroneware.title
+#: surv/results/tests.columns.content
+#: surv/results/testspw.columns.content
+msgid "Tarone-Ware"
+msgstr ""
+
+#: surv/results/tests.columns.title
+#: surv/results/testspw.columns.title
+msgid "Test"
+msgstr ""
+
+#: surv/options/tests.title
+#: surv/ui[1].label
+msgid "Tests"
+msgstr ""
+
+#: surv/ui[1]/tests.label
+#: surv/results/tests.title
+msgid "Tests of Equality"
+msgstr ""
+
+#: R/surv.b.R
+msgid "The grouping variable needs at least two levels"
+msgstr ""
+
+#: R/surv.b.R
+msgid "The grouping variable needs at least two levels with complete cases"
+msgstr ""
+
+#: R/surv.b.R
+msgid "Time"
+msgstr ""
+
+#: R/surv.b.R
+msgid "Time ({units})"
+msgstr ""
+
+#: surv/options/elapsed.title
+#: surv/ui[0][0].label
+msgid "Time Elapsed"
+msgstr ""
+
+#: R/surv.b.R
+msgid "Time elapsed cannot be negative"
+msgstr ""
+
+#: surv/options/units.title
+msgid "Time units"
+msgstr ""
+
+#: surv/results/medianestimates.columns.title
+msgid "Upper"
+msgstr ""
