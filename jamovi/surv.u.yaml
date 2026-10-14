@@ -24,14 +24,14 @@ children:
           - type: LevelSelector
             name: eventLevel
       - type: TargetLayoutBox
-        label: Groups
+        label: Group
         children:
           - type: VariablesListBox
             name: groups
             maxItemCount: 1
             isTarget: true
   - type: Label
-    label: Analysis of the differences
+    label: Tests of Equality
     children:
       - type: Label
         name: tests
@@ -57,14 +57,9 @@ children:
             optionName: tests
             optionPart: petopeto
             enable: (groups)
-      - type: Label
-        label: Pairwise comparisons
-        children:
-          - type: LayoutBox
-            margin: large
-            children:
-              - type: CheckBox
-                name: testspw
+          - type: CheckBox
+            name: testspw
+            enable: (groups)
 
   - type: Label
     label: Plots

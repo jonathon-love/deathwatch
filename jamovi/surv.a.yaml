@@ -17,7 +17,7 @@ options:
       permitted: [ numeric ]
 
     - name: event
-      title: Event 
+      title: Event
       type: Variable
       suggested: [ continuous, nominal ]
       permitted: [ factor, numeric ]
@@ -77,7 +77,7 @@ options:
       default: false
       
     - name: median
-      title: Median(s)
+      title: Median line
       type: Bool
       default: false
       

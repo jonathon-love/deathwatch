@@ -367,18 +367,18 @@ survClass <- R6::R6Class(
 
             if (identical(image, self$results$sc)) {
                 func <- NULL
-                ylab <- "Survival Probabilities"
+                ylab <- "Survival Probability"
             } else {
                 if (!self$options$logscale) {
                     func <- "cumhaz"
-                    ylab <- "Cumulative Hazards"
+                    ylab <- "Cumulative Hazard"
                     ci <- FALSE
                     cens <- FALSE
                     risk <- FALSE
                     survmedianline <-"none"
                 } else {
                     func <- function(x) log(-log(x))
-                    ylab <- "Cumulative Hazards (log scale)"
+                    ylab <- "Cumulative Hazard (log scale)"
                     ci <- FALSE
                     cens <- FALSE
                     risk <- FALSE

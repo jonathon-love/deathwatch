@@ -224,15 +224,17 @@ survResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="cilb", 
                         `title`="Lower", 
-                        `type`="number"),
+                        `type`="number", 
+                        `superTitle`="95% Confidence Interval"),
                     list(
                         `name`="ciub", 
                         `title`="Upper", 
-                        `type`="number"))))
+                        `type`="number", 
+                        `superTitle`="95% Confidence Interval"))))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="tests",
-                title="Analysis of the differences",
+                title="Tests of Equality",
                 visible="(tests)",
                 clearWith=list(
                     "event",
