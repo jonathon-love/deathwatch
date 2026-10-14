@@ -203,8 +203,8 @@ survClass <- R6::R6Class(
                         chisqr <- switch(test,
                             logrank = survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat)$chisq,
                             petopeto = survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat, rho=1)$chisq,
-                            gehan = coin::statistic(coin::logrank_test(survival::Surv(times, status) ~ group, data=tmpDat, type="Gehan-Breslow"))^2,
-                            taroneware = coin::statistic(coin::logrank_test(survival::Surv(times, status) ~ group, data=tmpDat, type="Tarone-Ware"))^2)
+                            gehan = private$.coinChisqr(tmpDat, "Gehan-Breslow"),
+                            taroneware = private$.coinChisqr(tmpDat, "Tarone-Ware"))
 
                         row <- list()
                         row[[paste0('chisqr[', test, ']')]] <- chisqr
@@ -290,6 +290,14 @@ survClass <- R6::R6Class(
                 }
             }
 
+        },
+        .coinChisqr = function(data, type) {
+            fit <- coin::logrank_test(survival::Surv(times, status) ~ group, data=data, type=type)
+            stat <- coin::statistic(fit)
+            # two-sample tests return a standardised z, k-sample tests a chi-squared
+            if (inherits(fit, "ScalarIndependenceTest"))
+                stat <- stat^2
+            unname(stat[1])
         },
         .plot=function(image, theme, ggtheme, ...) {
 
