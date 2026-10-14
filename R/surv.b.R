@@ -184,29 +184,7 @@ survClass <- R6::R6Class(
             #-- variable
             #---------------------------------
             if (!is.null(self$options$groups)) {
-                #######################################
-                ### Calculates data frame with results
-                ### of the tests
-                #######################################
                 df <- length(unique(tmpDat$group)) - 1
-                # -------   Logrank test
-                fit <- survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat)
-                dat1 <- data.frame(var = "Log-Rank",chisqr = fit$chisq)
-                # -------  Gehan
-                fit <- coin::logrank_test(survival::Surv(times, status) ~ group, data=tmpDat,type="Gehan-Breslow")
-                dat2 <- data.frame(var = "Gehan",chisqr = coin::statistic(fit)^2)
-                # -------  Tarone-Ware
-                fit <- coin::logrank_test(survival::Surv(times, status) ~ group, data=tmpDat,type="Tarone-Ware")
-                dat3 <- data.frame(var = "Tarone-Ware",chisqr = coin::statistic(fit)^2)
-                # -------   Peto-Peto
-                fit <- survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat,rho=1)
-                dat4 <- data.frame(var = "Peto-Peto",chisqr = fit$chisq)
-                # ------- bind the methods
-                DF <- rbind(dat1,dat2,dat3,dat4)
-                # ------- add the df and the p-values
-                DF$df <- df
-                DF$pvalue <- pchisq(DF$chisqr, df, lower.tail = FALSE)
-
 
                 #################################
                 ### Populates the table with the
@@ -215,18 +193,23 @@ survClass <- R6::R6Class(
                 tt <- self$results$tests
                 if (tt$isNotFilled() && length(self$options$tests) > 0) {
 
-                    for (i in seq_along(self$options$tests)) {
-
-                        test <- self$options$tests[i]
+                    for (test in self$options$tests) {
 
                         if (tt$isFilled(rowKey=1, col=paste0('chisqr[', test, ']')))
                             next()
 
                         private$.checkpoint()
+
+                        chisqr <- switch(test,
+                            logrank = survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat)$chisq,
+                            petopeto = survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat, rho=1)$chisq,
+                            gehan = coin::statistic(coin::logrank_test(survival::Surv(times, status) ~ group, data=tmpDat, type="Gehan-Breslow"))^2,
+                            taroneware = coin::statistic(coin::logrank_test(survival::Surv(times, status) ~ group, data=tmpDat, type="Tarone-Ware"))^2)
+
                         row <- list()
-                        row[[paste0('chisqr[', test, ']')]] <- DF$chisqr[i]
-                        row[[paste0('df[', test, ']')]] <- DF$df[i]
-                        row[[paste0('pvalue[', test, ']')]] <- DF$pvalue[i]
+                        row[[paste0('chisqr[', test, ']')]] <- chisqr
+                        row[[paste0('df[', test, ']')]] <- df
+                        row[[paste0('pvalue[', test, ']')]] <- pchisq(chisqr, df, lower.tail=FALSE)
 
                         tt$setRow(rowKey=1, values=row)
 
