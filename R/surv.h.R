@@ -200,8 +200,10 @@ survResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 name="medianestimates",
                 title="Median Estimates",
                 clearWith=list(
-                    "times",
-                    "status"),
+                    "event",
+                    "eventLevel",
+                    "elapsed",
+                    "groups"),
                 columns=list(
                     list(
                         `name`="group", 

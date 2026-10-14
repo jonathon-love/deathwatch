@@ -37,8 +37,10 @@ items:
       title: Median Estimates
       type: Table
       clearWith:
-        - times
-        - status
+        - event
+        - eventLevel
+        - elapsed
+        - groups
       columns:
         - name: group
           title: ''
