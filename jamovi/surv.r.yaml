@@ -55,15 +55,17 @@ items:
         - name: cilb
           title: 'Lower'
           type: number
+          superTitle: '95% Confidence Interval'
         - name: ciub
           title: 'Upper'
           type: number
+          superTitle: '95% Confidence Interval'
           
 
           
           
     - name: tests
-      title: Analysis of the differences
+      title: Tests of Equality
       type: Table
       visible: (tests)
       clearWith:
