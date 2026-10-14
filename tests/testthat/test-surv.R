@@ -238,3 +238,17 @@ test_that("negative times are rejected", {
             sc = FALSE),
         "cannot be negative")
 })
+
+test_that("pairwise comparisons explain that a test is needed", {
+    r <- deathwatch::surv(
+        data = lungData(),
+        elapsed = "time",
+        event = "event",
+        eventLevel = "dead",
+        groups = "ecog",
+        tests = NULL,
+        testspw = TRUE,
+        sc = FALSE)
+
+    expect_match(r$testspw$notes$notests$note, "Select at least one test")
+})

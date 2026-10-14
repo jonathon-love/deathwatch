@@ -280,7 +280,15 @@ survClass <- R6::R6Class(
                 tt$setNote("note0",paste("Grouping variable, ",self$options$groups,", must have 3 or more levels to perform this analysis.",sep="") )
                 return()
             }
-            if (tt$isFilled() || ! self$options$testspw)
+            if ( ! self$options$testspw)
+                return()
+
+            if (length(self$options$tests) == 0) {
+                tt$setNote('notests', 'Select at least one test to perform pairwise comparisons.')
+                return()
+            }
+
+            if (tt$isFilled())
                 return()
 
             nComparisons <- ngroups * (ngroups - 1) / 2
