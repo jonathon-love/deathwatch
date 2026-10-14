@@ -14,6 +14,9 @@ children:
             name: elapsed
             maxItemCount: 1
             isTarget: true
+          - type: TextBox
+            name: units
+            format: string
       - type: TargetLayoutBox
         label: Event
         children:
@@ -30,67 +33,57 @@ children:
             name: groups
             maxItemCount: 1
             isTarget: true
-  - type: CollapseBox
-    label: Tests
-    collapsed: false
-    stretchFactor: 1
+  - type: Label
+    name: tests
+    label: Tests of Equality
     children:
-      - type: Label
-        name: tests
-        label: Tests of Equality
-        children:
-          - name: tests_logrank
-            type: CheckBox
-            optionName: tests
-            optionPart: logrank
-            enable: (groups)
-          - name: tests_gehan
-            type: CheckBox
-            optionName: tests
-            optionPart: gehan
-            enable: (groups)
-          - name: tests_taroneware
-            type: CheckBox
-            optionName: tests
-            optionPart: taroneware
-            enable: (groups)
-          - name: tests_petopeto
-            type: CheckBox
-            optionName: tests
-            optionPart: petopeto
-            enable: (groups)
-          - type: CheckBox
-            name: testspw
-            enable: (groups)
-  - type: CollapseBox
+      - name: tests_logrank
+        type: CheckBox
+        optionName: tests
+        optionPart: logrank
+        enable: (groups)
+      - name: tests_gehan
+        type: CheckBox
+        optionName: tests
+        optionPart: gehan
+        enable: (groups)
+      - name: tests_taroneware
+        type: CheckBox
+        optionName: tests
+        optionPart: taroneware
+        enable: (groups)
+      - name: tests_petopeto
+        type: CheckBox
+        optionName: tests
+        optionPart: petopeto
+        enable: (groups)
+      - type: CheckBox
+        name: testspw
+        enable: (groups)
+  - type: Label
     label: Plots
-    collapsed: true
-    stretchFactor: 1
+    cell:
+      row: 1
+      column: 1
     children:
-      - type: LayoutBox
-        margin: large
+      - type: CheckBox
+        name: sc
         children:
           - type: CheckBox
-            name: sc
-            children:
-              - type: CheckBox
-                name: ci
-                enable: (sc)
-              - type: CheckBox
-                name: cens
-                enable: (sc)
-              - type: CheckBox
-                name: risk
-                enable: (sc)
-              - type: CheckBox
-                name: median
-                enable: (sc)
+            name: ci
+            enable: (sc)
           - type: CheckBox
-            name: chf
-            children:
-              - type: CheckBox
-                name: logscale
-                enable: (chf)
-          - type: TextBox
-            name: units
-            format: string
+            name: cens
+            enable: (sc)
+          - type: CheckBox
+            name: risk
+            enable: (sc)
+          - type: CheckBox
+            name: median
+            enable: (sc)
+      - type: CheckBox
+        name: chf
+        children:
+          - type: CheckBox
+            name: logscale
+            enable: (chf)
