@@ -14,9 +14,6 @@ children:
             name: elapsed
             maxItemCount: 1
             isTarget: true
-          - type: TextBox
-            name: units
-            format: string
       - type: TargetLayoutBox
         label: Event
         children:
@@ -87,3 +84,10 @@ children:
           - type: CheckBox
             name: logscale
             enable: (chf)
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: TextBox
+            name: units
+            format: string
+            enable: (sc || chf)
