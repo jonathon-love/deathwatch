@@ -8,6 +8,7 @@ items:
     - name:  summary
       title: Events Summary
       type: Table
+      refs: [survival1, survival2]
       clearWith:
         - event
         - eventLevel
@@ -36,6 +37,7 @@ items:
     - name:  medianestimates
       title: Median Estimates
       type: Table
+      refs: [survival1, survival2]
       clearWith:
         - event
         - eventLevel
@@ -151,7 +153,7 @@ items:
       title: Pairwise Comparisons
       type: Table
       visible: (testspw)
-      refs: [multcomp]
+      refs: [EnvStats]
       clearWith:
         - event
         - eventLevel

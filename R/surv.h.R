@@ -167,6 +167,9 @@ survResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="summary",
                 title="Events Summary",
+                refs=list(
+                    "survival1",
+                    "survival2"),
                 clearWith=list(
                     "event",
                     "eventLevel",
@@ -199,6 +202,9 @@ survResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="medianestimates",
                 title="Median Estimates",
+                refs=list(
+                    "survival1",
+                    "survival2"),
                 clearWith=list(
                     "event",
                     "eventLevel",
@@ -340,7 +346,7 @@ survResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 title="Pairwise Comparisons",
                 visible="(testspw)",
                 refs=list(
-                    "multcomp"),
+                    "EnvStats"),
                 clearWith=list(
                     "event",
                     "eventLevel",

@@ -9,7 +9,8 @@
         `title`="A Lego system for conditional inference", 
         `publisher`="The American Statistician", 
         `volume`="60(3)", 
-        `pages`="257-263"), 
+        `pages`="257-263", 
+        `url`="https://doi.org/10.1198/000313006X118430"), 
     `coin2`=list(
         `type`="article", 
         `author`="Torsten Hothorn, Kurt Hornik, Mark A. van de Wiel and Achim Zeileis", 
@@ -17,7 +18,8 @@
         `title`="Implementing a class of permutation tests: The coin package", 
         `publisher`="Journal of Statistical Software", 
         `volume`="28(8)", 
-        `pages`="1-23"), 
+        `pages`="1-23", 
+        `url`="https://doi.org/10.18637/jss.v028.i08"), 
     `survival1`=list(
         `type`="software", 
         `author`="Terry M Therneau", 
@@ -31,11 +33,13 @@
         `year`=2000, 
         `title`="Modeling Survival Data: Extending the Cox Model", 
         `publisher`="Springer", 
-        `address`="New York"), 
-    `multcomp`=list(
+        `address`="New York", 
+        `url`="https://doi.org/10.1007/978-1-4757-3294-8"), 
+    `EnvStats`=list(
         `type`="book", 
         `author`="Steven P. Millard", 
         `year`=2013, 
-        `title`="EnvStats:  An R Package for Environmental Statistics", 
+        `title`="EnvStats: An R Package for Environmental Statistics", 
         `publisher`="Springer", 
-        `address`="New York"))
+        `address`="New York", 
+        `url`="https://doi.org/10.1007/978-1-4614-8456-1"))
