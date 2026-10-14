@@ -192,41 +192,51 @@ items:
           visible: (tests:petopeto)
         - name: nupw[logrank]
           title: ν
+          type: number
           visible: (tests:logrank)
         - name: nupw[gehan]
           title: ν
+          type: number
           visible: (tests:gehan)
         - name: nupw[taroneware]
           title: ν
+          type: number
           visible: (tests:taroneware)
         - name: nupw[petopeto]
           title: ν
+          type: number
           visible: (tests:petopeto)
         - name: nusepw[logrank]
           title: SE
+          type: number
           visible: (tests:logrank)
         - name: nusepw[gehan]
           title: SE
+          type: number
           visible: (tests:gehan)
         - name: nusepw[taroneware]
           title: SE
+          type: number
           visible: (tests:taroneware)
         - name: nusepw[petopeto]
           title: SE
+          type: number
           visible: (tests:petopeto)
         - name: zpw[logrank]
           title: z
-          format: zto,p
+          type: number
           visible: (tests:logrank)
         - name: zpw[gehan]
           title: z
-          format: zto,p
+          type: number
           visible: (tests:gehan)
         - name: zpw[taroneware]
           title: z
+          type: number
           visible: (tests:taroneware)
         - name: zpw[petopeto]
           title: z
+          type: number
           visible: (tests:petopeto)
         - name: ppw[logrank]
           title: p
