@@ -164,6 +164,16 @@ survClass <- R6::R6Class(
                 self$results$medianestimates$setNote('empty', note)
             }
 
+            private$.populateSummary(tmpDat)
+            private$.populateMedians(tmpDat)
+
+            if ( ! is.null(self$options$groups)) {
+                private$.populateTests(tmpDat)
+                private$.populatePairwise(tmpDat)
+            }
+
+        },
+        .populateSummary = function(tmpDat) {
 
             ##################################
             ### Populate first table with the
@@ -177,7 +187,7 @@ survClass <- R6::R6Class(
                         censored = fit$n - sum(fit$n.event),
                         obs = sum(fit$n.event)))
             }
-            if (!is.null(self$options$groups)) {
+            else {
                 fit <- survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat)
                 for (i in seq_along(levels(tmpDat$group))) {
                     table1$setRow(rowKey=levels(tmpDat$group)[i], values=list(
@@ -186,19 +196,21 @@ survClass <- R6::R6Class(
                         obs=fit$obs[i],
                         exp=fit$exp[i]
                     ))
-                    }
                 }
+            }
 
+        },
+        .populateMedians = function(tmpDat) {
 
             #######################################
             ### Populate the table with the median
             ### summaries
             #######################################
             s <- survival::survfit(survival::Surv(times, status) ~ group, data=tmpDat)
-            if (is.null(self$options$groups)) {
+            if (is.null(self$options$groups))
                 temp <- as.data.frame(rbind(summary(s)$table,summary(s)$table))[1,]
-            }
-            if (!is.null(self$options$groups)) temp <- as.data.frame(summary(s)$table)
+            else
+                temp <- as.data.frame(summary(s)$table)
             table3 <- self$results$medianestimates
             for (i in seq_len(nrow(temp))) {
                 values <- list(
@@ -211,122 +223,111 @@ survClass <- R6::R6Class(
                     table3$setRow(rowKey=levels(tmpDat$group)[i], values=values)
             }
 
+        },
+        .populateTests = function(tmpDat) {
 
-            #---------------------------------
-            #-- Populates the table with the
-            #-- tests results
-            #-- Only if there is a grouping
-            #-- variable
-            #---------------------------------
-            if (!is.null(self$options$groups)) {
-                df <- length(unique(tmpDat$group)) - 1
+            #################################
+            ### Populates the table with the
+            ### tests results
+            #################################
+            tt <- self$results$tests
+            if (tt$isFilled() || length(self$options$tests) == 0)
+                return()
 
-                #################################
-                ### Populates the table with the
-                ### tests results
-                #################################
-                tt <- self$results$tests
-                if (tt$isNotFilled() && length(self$options$tests) > 0) {
+            df <- nlevels(tmpDat$group) - 1
 
-                    for (test in self$options$tests) {
+            for (test in self$options$tests) {
 
-                        if (tt$isFilled(rowKey=1, col=paste0('chisqr[', test, ']')))
-                            next()
+                if (tt$isFilled(rowKey=1, col=paste0('chisqr[', test, ']')))
+                    next()
 
-                        private$.checkpoint()
+                private$.checkpoint()
 
-                        chisqr <- switch(test,
-                            logrank = survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat)$chisq,
-                            petopeto = survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat, rho=1)$chisq,
-                            gehan = private$.coinChisqr(tmpDat, "Gehan-Breslow"),
-                            taroneware = private$.coinChisqr(tmpDat, "Tarone-Ware"))
+                chisqr <- switch(test,
+                    logrank = survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat)$chisq,
+                    petopeto = survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat, rho=1)$chisq,
+                    gehan = private$.coinChisqr(tmpDat, "Gehan-Breslow"),
+                    taroneware = private$.coinChisqr(tmpDat, "Tarone-Ware"))
 
-                        row <- list()
-                        row[[paste0('chisqr[', test, ']')]] <- chisqr
-                        row[[paste0('df[', test, ']')]] <- df
-                        row[[paste0('pvalue[', test, ']')]] <- pchisq(chisqr, df, lower.tail=FALSE)
+                row <- list()
+                row[[paste0('chisqr[', test, ']')]] <- chisqr
+                row[[paste0('df[', test, ']')]] <- df
+                row[[paste0('pvalue[', test, ']')]] <- pchisq(chisqr, df, lower.tail=FALSE)
 
-                        tt$setRow(rowKey=1, values=row)
-
-                    }
-
-                }
-
+                tt$setRow(rowKey=1, values=row)
             }
+
+        },
+        .populatePairwise = function(tmpDat) {
 
             #---------------------------------
             #-- Populates the table with the
             #-- tests results with multiple
             #-- comparisons.
-            #-- Only if there is a grouping
-            #-- variable and the number of
-            #-- levels is >2
+            #-- Only if the number of levels
+            #-- is >2
             #---------------------------------
-            if (!is.null(self$options$groups) ) {
-                tt <- self$results$testspw
-                if (length(unique(tmpDat$group))<=2) {
-                    tt$setNote("note0",paste("Grouping variable, ",self$options$groups,", must have 3 or more levels to perform this analysis.",sep="") )
-                    return()
-                }
-                if (tt$isNotFilled() && self$options$testspw) {
+            tt <- self$results$testspw
+            groups <- levels(tmpDat$group)
+            ngroups <- length(groups)
 
-                    groups <- levels(tmpDat$group)
-                    ngroups <- length(groups)
-                    nComparisons <- ngroups * (ngroups - 1) / 2
+            if (ngroups <= 2) {
+                tt$setNote("note0",paste("Grouping variable, ",self$options$groups,", must have 3 or more levels to perform this analysis.",sep="") )
+                return()
+            }
+            if (tt$isFilled() || ! self$options$testspw)
+                return()
 
-                    if (length(groups) > 2) {
-                        groupsData <- list()
-                        for (group in groups) {
-                            ss <- (tmpDat$group == group)
-                            groupsData[[group]] <- subset(tmpDat, subset=ss, select=c('times', 'status'))
-                        }
+            nComparisons <- ngroups * (ngroups - 1) / 2
+
+            groupsData <- list()
+            for (group in groups) {
+                ss <- (tmpDat$group == group)
+                groupsData[[group]] <- subset(tmpDat, subset=ss, select=c('times', 'status'))
+            }
+
+            for (pair in tt$rowKeys) {
+
+                if ( ! all(pair %in% groups))
+                    next()
+
+                x <- groupsData[[pair[1]]]
+                y <- groupsData[[pair[2]]]
+
+                for (test in self$options$tests) {
+
+                    if (tt$isFilled(rowKey=pair, col=paste0('nupw[', test, ']')))
+                        next()
+
+                    private$.checkpoint()
+
+                    testArg <- test
+                    if (test == 'taroneware') {
+                        testArg <- 'tarone-ware'
+                    } else if (test == 'petopeto') {
+                        testArg <- 'peto-peto'
                     }
 
-                    for (pair in tt$rowKeys) {
+                    result <- EnvStats::twoSampleLinearRankTestCensored(
+                        test = testArg,
+                        x = x$times,
+                        x.censored = ! x$status,
+                        y = y$times,
+                        y.censored = ! y$status,
+                        censoring.side = 'right')
 
-                        if ( ! all(pair %in% groups))
-                            next()
+                    row <- list()
 
-                        x <- groupsData[[pair[1]]]
-                        y <- groupsData[[pair[2]]]
+                    row[[paste0('zpw[', test, ']')]] <- result$statistic['z']
+                    row[[paste0('nupw[', test, ']')]] <- result$statistic['nu']
+                    row[[paste0('nusepw[', test, ']')]] <- sqrt(result$statistic['var.nu'])
+                    row[[paste0('ppw[', test, ']')]] <- min(result$p.value * nComparisons, 1)
 
-                        for (i in seq_along(self$options$tests)) {
-                            test <- self$options$tests[i]
-
-                            if (tt$isFilled(rowKey=pair, col=paste0('nupw[', test, ']')))
-                                next()
-
-                            private$.checkpoint()
-
-                            testArg <- test
-                            if (test == 'taroneware') {
-                                testArg <- 'tarone-ware'
-                            } else if (test == 'petopeto') {
-                                testArg <- 'peto-peto'
-                            }
-
-                            result <- EnvStats::twoSampleLinearRankTestCensored(
-                                test = testArg,
-                                x = x$times,
-                                x.censored = ! x$status,
-                                y = y$times,
-                                y.censored = ! y$status,
-                                censoring.side = 'right')
-
-                            row <- list()
-
-                            row[[paste0('zpw[', test, ']')]] <- result$statistic['z']
-                            row[[paste0('nupw[', test, ']')]] <- result$statistic['nu']
-                            row[[paste0('nusepw[', test, ']')]] <- sqrt(result$statistic['var.nu'])
-                            row[[paste0('ppw[', test, ']')]] <- min(result$p.value * nComparisons, 1)
-
-                            tt$setRow(rowKey=pair, values=row)
-                        }
-
-                        tt$setNote("note","P-values are Bonferroni-corrected.")
-                    }
+                    tt$setRow(rowKey=pair, values=row)
                 }
             }
+
+            tt$setNote("note","P-values are Bonferroni-corrected.")
 
         },
         .coinChisqr = function(data, type) {
