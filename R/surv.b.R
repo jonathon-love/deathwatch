@@ -30,7 +30,7 @@ survClass <- R6::R6Class(
                 summary$addRow(rowKey=group, list(group=group))
 
             tests <- self$results$tests
-            if (length(groups) >= 2) {
+            if ( ! is.null(self$options$groups)) {
                 tests$addRow(rowKey=1)
             }
             else {
@@ -44,11 +44,13 @@ survClass <- R6::R6Class(
             ### comparisons
             ####################################
             testspw <- self$results$testspw
-            if (length(groups) >= 2) {
-                comparisons <- combn(groups, 2)
-                for (i in seq_len(ncol(comparisons))) {
-                    key = comparisons[,i]
-                    testspw$addRow(rowKey=key)
+            if ( ! is.null(self$options$groups)) {
+                if (length(groups) >= 2) {
+                    comparisons <- combn(groups, 2)
+                    for (i in seq_len(ncol(comparisons))) {
+                        key = comparisons[,i]
+                        testspw$addRow(rowKey=key)
+                    }
                 }
             }
             else {
@@ -86,16 +88,26 @@ survClass <- R6::R6Class(
                 return()
 
             if (nrow(self$data) == 0)
-                stop('Data contains no (complete) rows')
+                jmvcore::reject('Data contains no (complete) rows')
+
+            if ( ! is.null(self$options$groups) && length(private$.groups()) < 2)
+                jmvcore::reject('The grouping variable needs at least two levels')
 
 
             ###########################
             ### Creates the data frame
             ###########################
-            if (class(self$data[[eventVarName]])=="numeric" || class(self$data[[eventVarName]])=="integer") {
+            if (is.numeric(self$data[[eventVarName]])) {
                 #---- If censor indicator is continuous
+                status <- self$data[[eventVarName]]
+                # follow survival::Surv(): 0/1 = censored/event, 1/2 = censored/event
+                if ( ! all(status %in% c(0, 1, NA))) {
+                    if ( ! all(status %in% c(1, 2, NA)))
+                        jmvcore::reject('A numeric event variable must be coded 0 (censored) and 1 (event), or 1 (censored) and 2 (event). Otherwise, use a factor and choose the event level.')
+                    status <- status - 1
+                }
                 tmpDat <- data.frame(times = jmvcore::toNumeric(self$data[[elapsedVarName]]),
-                                     status = self$data[[eventVarName]])
+                                     status = status)
             } else {
                 #---- If censor indicator is categorical
                 tmpDat <- data.frame(times = jmvcore::toNumeric(self$data[[elapsedVarName]]),
@@ -123,7 +135,7 @@ survClass <- R6::R6Class(
             ### contains data at all
             ############################
             if (nrow(tmpDat) == 0)
-                stop('Data contains no (complete) rows')
+                jmvcore::reject('Data contains no (complete) rows')
 
 
             ##################################
