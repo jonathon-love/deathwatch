@@ -137,6 +137,23 @@ survClass <- R6::R6Class(
             if (nrow(tmpDat) == 0)
                 jmvcore::reject('Data contains no (complete) rows')
 
+            ############################
+            ### Drop levels of the
+            ### grouping variable with
+            ### no complete cases
+            ############################
+            if ( ! is.null(self$options$groups)) {
+                empty <- setdiff(levels(tmpDat$group), unique(as.character(tmpDat$group)))
+                tmpDat$group <- droplevels(tmpDat$group)
+                if (nlevels(tmpDat$group) < 2)
+                    jmvcore::reject('The grouping variable needs at least two levels with complete cases')
+                if (length(empty) > 0) {
+                    note <- paste0('No complete cases for: ', paste(empty, collapse=', '))
+                    self$results$summary$setNote('empty', note)
+                    self$results$medianestimates$setNote('empty', note)
+                }
+            }
+
 
             ##################################
             ### Populate first table with the
@@ -152,8 +169,8 @@ survClass <- R6::R6Class(
             }
             if (!is.null(self$options$groups)) {
                 fit <- survival::survdiff(survival::Surv(times, status) ~ group, data=tmpDat)
-                for (i in 1:length(unique(tmpDat$group)) ) {
-                    table1$setRow(rowNo=i, values=list(
+                for (i in seq_along(levels(tmpDat$group))) {
+                    table1$setRow(rowKey=levels(tmpDat$group)[i], values=list(
                         n=fit$n[i],
                         censored = fit$n[i] - fit$obs[i],
                         obs=fit$obs[i],
@@ -173,12 +190,15 @@ survClass <- R6::R6Class(
             }
             if (!is.null(self$options$groups)) temp <- as.data.frame(summary(s)$table)
             table3 <- self$results$medianestimates
-            for (i in 1:length(unique(tmpDat$group)) ) {
-                table3$setRow(rowNo=i, values=list(
+            for (i in seq_len(nrow(temp))) {
+                values <- list(
                     median=temp$median[i],
                     cilb=temp$`0.95LCL`[i],
-                    ciub=temp$`0.95UCL`[i]
-                ))
+                    ciub=temp$`0.95UCL`[i])
+                if (is.null(self$options$groups))
+                    table3$setRow(rowNo=1, values=values)
+                else
+                    table3$setRow(rowKey=levels(tmpDat$group)[i], values=values)
             }
 
 
@@ -247,7 +267,7 @@ survClass <- R6::R6Class(
                 }
                 if (tt$isNotFilled() && self$options$testspw) {
 
-                    groups <- private$.groups()
+                    groups <- levels(tmpDat$group)
                     ngroups <- length(groups)
                     nComparisons <- ngroups * (ngroups - 1) / 2
 
@@ -260,6 +280,9 @@ survClass <- R6::R6Class(
                     }
 
                     for (pair in tt$rowKeys) {
+
+                        if ( ! all(pair %in% groups))
+                            next()
 
                         x <- groupsData[[pair[1]]]
                         y <- groupsData[[pair[2]]]

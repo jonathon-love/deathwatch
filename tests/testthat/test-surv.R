@@ -143,3 +143,47 @@ test_that("a grouping variable with a single level is rejected", {
             sc = FALSE),
         "at least two levels")
 })
+
+test_that("rows are filled by group when a level has no complete cases", {
+    data <- lungData()
+    data$ecog <- factor(data$ecog, levels = c("e0", "e9", "e1", "e2"))
+    data$ecog[1:3] <- "e9"
+    data$time[1:3] <- NA
+
+    r <- deathwatch::surv(
+        data = data,
+        elapsed = "time",
+        event = "event",
+        eventLevel = "dead",
+        groups = "ecog",
+        tests = "logrank",
+        testspw = TRUE,
+        sc = FALSE)
+
+    tmpDat <- na.omit(data.frame(
+        times = data$time,
+        status = as.integer(data$event == "dead"),
+        group = droplevels(data$ecog)))
+    tmpDat$group <- droplevels(tmpDat$group)
+    s <- summary(survival::survfit(survival::Surv(times, status) ~ group, data = tmpDat))$table
+
+    for (level in c("e0", "e1", "e2")) {
+        expect_equal(unname(r$summary$getCell(rowKey = level, "n")$value), sum(tmpDat$group == level))
+        expect_equal(r$medianestimates$getCell(rowKey = level, "median")$value, unname(s[paste0("group=", level), "median"]))
+    }
+    expect_null(r$summary$getCell(rowKey = "e9", "n")$value)
+    expect_null(r$medianestimates$getCell(rowKey = "e9", "median")$value)
+
+    # only the three comparisons between groups with data are made
+    expect_null(r$testspw$getCell(rowKey = c("e0", "e9"), "ppw[logrank]")$value)
+    x <- tmpDat[tmpDat$group == "e0", ]
+    y <- tmpDat[tmpDat$group == "e2", ]
+    raw <- EnvStats::twoSampleLinearRankTestCensored(
+        test = "logrank",
+        x = x$times,
+        x.censored = x$status == 0,
+        y = y$times,
+        y.censored = y$status == 0,
+        censoring.side = "right")$p.value
+    expect_equal(r$testspw$getCell(rowKey = c("e0", "e2"), "ppw[logrank]")$value, min(raw * 3, 1))
+})
