@@ -30,12 +30,14 @@ children:
             name: groups
             maxItemCount: 1
             isTarget: true
-  - type: Label
-    label: Tests of Equality
+  - type: CollapseBox
+    label: Tests
+    collapsed: false
+    stretchFactor: 1
     children:
       - type: Label
         name: tests
-        label: Tests
+        label: Tests of Equality
         children:
           - name: tests_logrank
             type: CheckBox
@@ -60,16 +62,13 @@ children:
           - type: CheckBox
             name: testspw
             enable: (groups)
-
-  - type: Label
+  - type: CollapseBox
     label: Plots
-    margin: large
-    cell:
-      row: 1
-      column: 1
+    collapsed: true
+    stretchFactor: 1
     children:
       - type: LayoutBox
-        margin: small
+        margin: large
         children:
           - type: CheckBox
             name: sc
@@ -95,4 +94,3 @@ children:
           - type: TextBox
             name: units
             format: string
-
