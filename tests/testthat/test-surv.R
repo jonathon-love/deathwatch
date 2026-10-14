@@ -58,3 +58,34 @@ test_that("pairwise p-values are Bonferroni-corrected", {
     p <- table$getCell(rowKey = c("e0", "e2"), "ppw[logrank]")$value
     expect_equal(p, min(raw * 3, 1))
 })
+
+test_that("Gehan and Tarone-Ware agree with coin for more than two groups", {
+    data <- lungData()
+
+    r <- deathwatch::surv(
+        data = data,
+        elapsed = "time",
+        event = "event",
+        eventLevel = "dead",
+        groups = "ecog",
+        tests = c("gehan", "taroneware"),
+        sc = FALSE)
+
+    tmpDat <- na.omit(data.frame(
+        times = data$time,
+        status = as.integer(data$event == "dead"),
+        group = data$ecog))
+
+    table <- r$tests
+    for (test in c("gehan", "taroneware")) {
+        type <- c(gehan = "Gehan-Breslow", taroneware = "Tarone-Ware")[[test]]
+        fit <- coin::logrank_test(
+            survival::Surv(times, status) ~ group,
+            data = tmpDat,
+            type = type)
+
+        expect_equal(table$getCell(rowNo = 1, paste0("chisqr[", test, "]"))$value, unname(coin::statistic(fit)))
+        expect_equal(table$getCell(rowNo = 1, paste0("df[", test, "]"))$value, 2)
+        expect_equal(table$getCell(rowNo = 1, paste0("pvalue[", test, "]"))$value, as.numeric(coin::pvalue(fit)))
+    }
+})
