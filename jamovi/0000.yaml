@@ -18,6 +18,10 @@ analyses:
     menuSubgroup: Death Watch
     menuTitle: Survival Analysis
     category: analyses
+datasets:
+  - name: Lung Cancer (Loprinzi et al., 1994)
+    path: lung.csv
+    description: Survival of patients with advanced lung cancer, from the survival package
 usesNative: true
 minApp: 1.0.8
 
