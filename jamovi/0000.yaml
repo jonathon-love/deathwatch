@@ -17,6 +17,7 @@ analyses:
     menuGroup: Survival
     menuSubgroup: Death Watch
     menuTitle: Survival Analysis
+    category: analyses
 usesNative: true
 minApp: 1.0.8
 
