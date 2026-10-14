@@ -252,3 +252,29 @@ test_that("pairwise comparisons explain that a test is needed", {
 
     expect_match(r$testspw$notes$notests$note, "Select at least one test")
 })
+
+test_that("pairwise rows are only created when pairwise comparisons are requested", {
+    data <- lungData()
+
+    r <- deathwatch::surv(
+        data = data,
+        elapsed = "time",
+        event = "event",
+        eventLevel = "dead",
+        groups = "ecog",
+        tests = "logrank",
+        testspw = FALSE,
+        sc = FALSE)
+    expect_equal(length(r$testspw$rowKeys), 0)
+
+    r <- deathwatch::surv(
+        data = data,
+        elapsed = "time",
+        event = "event",
+        eventLevel = "dead",
+        groups = "ecog",
+        tests = "logrank",
+        testspw = TRUE,
+        sc = FALSE)
+    expect_equal(length(r$testspw$rowKeys), 3)
+})
