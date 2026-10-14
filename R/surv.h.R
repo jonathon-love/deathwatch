@@ -463,6 +463,7 @@ survResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 width=600,
                 height=400,
                 renderFun=".plot",
+                requiresData=TRUE,
                 clearWith=list(
                     "event",
                     "eventLevel",
@@ -481,6 +482,7 @@ survResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 width=600,
                 height=400,
                 renderFun=".plot",
+                requiresData=TRUE,
                 clearWith=list(
                     "event",
                     "eventLevel",

@@ -79,13 +79,10 @@ survClass <- R6::R6Class(
 
             groups
         },
-        .run = function() {
+        .buildData = function() {
 
             eventVarName <- self$options$event
             elapsedVarName <- self$options$elapsed
-
-            if (is.null(eventVarName) || is.null(elapsedVarName))
-                return()
 
             if (nrow(self$data) == 0)
                 jmvcore::reject('Data contains no (complete) rows')
@@ -143,15 +140,28 @@ survClass <- R6::R6Class(
             ### no complete cases
             ############################
             if ( ! is.null(self$options$groups)) {
-                empty <- setdiff(levels(tmpDat$group), unique(as.character(tmpDat$group)))
                 tmpDat$group <- droplevels(tmpDat$group)
                 if (nlevels(tmpDat$group) < 2)
                     jmvcore::reject('The grouping variable needs at least two levels with complete cases')
-                if (length(empty) > 0) {
-                    note <- paste0('No complete cases for: ', paste(empty, collapse=', '))
-                    self$results$summary$setNote('empty', note)
-                    self$results$medianestimates$setNote('empty', note)
-                }
+            }
+
+            tmpDat
+        },
+        .run = function() {
+
+            eventVarName <- self$options$event
+            elapsedVarName <- self$options$elapsed
+
+            if (is.null(eventVarName) || is.null(elapsedVarName))
+                return()
+
+            tmpDat <- private$.buildData()
+
+            empty <- setdiff(private$.groups(), levels(tmpDat$group))
+            if ( ! is.null(self$options$groups) && length(empty) > 0) {
+                note <- paste0('No complete cases for: ', paste(empty, collapse=', '))
+                self$results$summary$setNote('empty', note)
+                self$results$medianestimates$setNote('empty', note)
             }
 
 
@@ -200,13 +210,6 @@ survClass <- R6::R6Class(
                 else
                     table3$setRow(rowKey=levels(tmpDat$group)[i], values=values)
             }
-
-
-            #################################
-            #### Set the state for the plots
-            #################################
-            self$results$sc$setState(tmpDat)
-            self$results$chf$setState(tmpDat)
 
 
             #---------------------------------
@@ -342,7 +345,7 @@ survClass <- R6::R6Class(
             if (is.null(eventVarName) || is.null(elapsedVarName))
                 return()
 
-            tmpDat <- image$state
+            tmpDat <- private$.buildData()
 
             s <- survival::survfit(survival::Surv(times, status) ~ group, data=tmpDat)
             if (!is.null(names(s$strata))) names(s$strata) <- gsub("group=", "", names(s$strata))

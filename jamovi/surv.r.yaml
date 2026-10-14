@@ -253,6 +253,7 @@ items:
       width: 600
       height: 400
       renderFun: .plot
+      requiresData: true
       clearWith:
         - event
         - eventLevel
@@ -271,6 +272,7 @@ items:
       width: 600
       height: 400
       renderFun: .plot
+      requiresData: true
       clearWith:
         - event
         - eventLevel

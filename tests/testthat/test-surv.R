@@ -187,3 +187,25 @@ test_that("rows are filled by group when a level has no complete cases", {
         censoring.side = "right")$p.value
     expect_equal(r$testspw$getCell(rowKey = c("e0", "e2"), "ppw[logrank]")$value, min(raw * 3, 1))
 })
+
+test_that("plots render without storing the data in their state", {
+    data <- lungData()
+
+    r <- deathwatch::surv(
+        data = data,
+        elapsed = "time",
+        event = "event",
+        eventLevel = "dead",
+        groups = "sex",
+        tests = NULL,
+        sc = TRUE,
+        chf = TRUE,
+        risk = TRUE)
+
+    for (image in list(r$sc, r$chf)) {
+        expect_null(image$state)
+        path <- tempfile(fileext = ".png")
+        image$saveAs(path)
+        expect_true(file.exists(path))
+    }
+})
