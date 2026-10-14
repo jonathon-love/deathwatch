@@ -254,6 +254,7 @@ survClass <- R6::R6Class(
 
                     groups <- private$.groups()
                     ngroups <- length(groups)
+                    nComparisons <- ngroups * (ngroups - 1) / 2
 
                     if (length(groups) > 2) {
                         groupsData <- list()
@@ -296,7 +297,7 @@ survClass <- R6::R6Class(
                             row[[paste0('zpw[', test, ']')]] <- result$statistic['z']
                             row[[paste0('nupw[', test, ']')]] <- result$statistic['nu']
                             row[[paste0('nusepw[', test, ']')]] <- sqrt(result$statistic['var.nu'])
-                            row[[paste0('ppw[', test, ']')]] <- result$p.value * min(ngroups*(ngroups - 1)/2,1)
+                            row[[paste0('ppw[', test, ']')]] <- min(result$p.value * nComparisons, 1)
 
                             tt$setRow(rowKey=pair, values=row)
                         }
