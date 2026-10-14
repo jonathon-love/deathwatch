@@ -46,7 +46,7 @@ survClass <- R6::R6Class(
             ####################################
             testspw <- self$results$testspw
             if ( ! is.null(self$options$groups)) {
-                if (length(groups) >= 2) {
+                if (self$options$testspw && length(groups) >= 2) {
                     comparisons <- combn(groups, 2)
                     for (i in seq_len(ncol(comparisons))) {
                         key = comparisons[,i]
