@@ -98,7 +98,7 @@ survClass <- R6::R6Class(
             if (is.numeric(self$data[[eventVarName]])) {
                 #---- If censor indicator is continuous
                 status <- self$data[[eventVarName]]
-                # follow survival::Surv(): 0/1 = censored/event, 1/2 = censored/event
+                # as in survival::Surv(), accept 0/1 or 1/2 coding
                 if (!all(status %in% c(0, 1, NA))) {
                     if (!all(status %in% c(1, 2, NA))) {
                         jmvcore::reject(.(
@@ -324,7 +324,7 @@ survClass <- R6::R6Class(
             #-- tests results with multiple
             #-- comparisons.
             #-- Only if the number of levels
-            #-- is >2
+            #-- is more than 2
             #---------------------------------
             tt <- self$results$testspw
             groups <- levels(tmpDat$group)
@@ -435,7 +435,8 @@ survClass <- R6::R6Class(
                 type = type
             )
             stat <- coin::statistic(fit)
-            # two-sample tests return a standardised z, k-sample tests a chi-squared
+            # two-sample tests return a standardised z, k-sample tests a
+            # chi-squared
             if (inherits(fit, "ScalarIndependenceTest")) {
                 stat <- stat^2
             }

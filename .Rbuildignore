@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 ^jamovi/.*$
 ^air\.toml$
+^\.lintr$
