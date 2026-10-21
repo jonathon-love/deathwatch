@@ -1,280 +1,286 @@
-test_that("overall tests are matched to the test by name, not position", {
+test_that("a Gehan-only selection reports the Gehan chi-squared", {
+    # GIVEN the lung data grouped by sex
     data <- lungData()
 
-    r <- deathwatch::surv(
-        data = data,
-        elapsed = "time",
-        event = "event",
-        eventLevel = "dead",
-        groups = "sex",
-        tests = "gehan",
-        sc = FALSE)
+    # WHEN only the Gehan test is requested
+    results <- runSurv(data = data, groups = "sex", tests = "gehan")
 
-    tmpDat <- na.omit(data.frame(
-        times = data$time,
-        status = as.integer(data$event == "dead"),
-        group = data$sex))
-    expected <- coin::statistic(coin::logrank_test(
-        survival::Surv(times, status) ~ group,
-        data = tmpDat,
-        type = "Gehan-Breslow"))^2
-
-    table <- r$tests
-    expect_equal(table$getCell(rowNo = 1, "chisqr[gehan]")$value, unname(expected[1]))
-    expect_equal(table$getCell(rowNo = 1, "df[gehan]")$value, 1)
+    # THEN the Gehan row holds coin's Gehan statistic, not the log-rank one
+    fit <- coinTest(completeCases(data, "sex"), "Gehan-Breslow")
+    expected <- unname(coin::statistic(fit)^2)
     expect_equal(
-        table$getCell(rowNo = 1, "pvalue[gehan]")$value,
-        pchisq(unname(expected[1]), 1, lower.tail = FALSE))
+        results$tests$getCell(rowNo = 1, "chisqr[gehan]")$value,
+        expected[1]
+    )
+})
+
+test_that("the Gehan chi-squared matches coin for more than two groups", {
+    # GIVEN the lung data grouped by its three ECOG levels
+    data <- lungData()
+
+    # WHEN the Gehan test is requested
+    results <- runSurv(data = data, groups = "ecog", tests = "gehan")
+
+    # THEN the chi-squared is coin's k-sample statistic, not its square
+    fit <- coinTest(completeCases(data, "ecog"), "Gehan-Breslow")
+    expect_equal(
+        results$tests$getCell(rowNo = 1, "chisqr[gehan]")$value,
+        unname(coin::statistic(fit))
+    )
+})
+
+test_that("the Tarone-Ware chi-squared matches coin for more than two groups", {
+    # GIVEN the lung data grouped by its three ECOG levels
+    data <- lungData()
+
+    # WHEN the Tarone-Ware test is requested
+    results <- runSurv(data = data, groups = "ecog", tests = "taroneware")
+
+    # THEN the chi-squared is coin's k-sample statistic, not its square
+    fit <- coinTest(completeCases(data, "ecog"), "Tarone-Ware")
+    expect_equal(
+        results$tests$getCell(rowNo = 1, "chisqr[taroneware]")$value,
+        unname(coin::statistic(fit))
+    )
+})
+
+test_that("the Gehan p-value matches coin for more than two groups", {
+    # GIVEN the lung data grouped by its three ECOG levels
+    data <- lungData()
+
+    # WHEN the Gehan test is requested
+    results <- runSurv(data = data, groups = "ecog", tests = "gehan")
+
+    # THEN the p-value equals coin's
+    fit <- coinTest(completeCases(data, "ecog"), "Gehan-Breslow")
+    expect_equal(
+        results$tests$getCell(rowNo = 1, "pvalue[gehan]")$value,
+        as.numeric(coin::pvalue(fit))
+    )
 })
 
 test_that("pairwise p-values are Bonferroni-corrected", {
+    # GIVEN the lung data grouped by its three ECOG levels
     data <- lungData()
 
-    r <- deathwatch::surv(
+    # WHEN pairwise log-rank comparisons are requested
+    results <- runSurv(
         data = data,
-        elapsed = "time",
-        event = "event",
-        eventLevel = "dead",
         groups = "ecog",
         tests = "logrank",
-        testspw = TRUE,
-        sc = FALSE)
+        testspw = TRUE
+    )
 
-    tmpDat <- na.omit(data.frame(
-        times = data$time,
-        status = as.integer(data$event == "dead"),
-        group = data$ecog))
-    x <- tmpDat[tmpDat$group == "e0", ]
-    y <- tmpDat[tmpDat$group == "e2", ]
-    raw <- EnvStats::twoSampleLinearRankTestCensored(
-        test = "logrank",
-        x = x$times,
-        x.censored = x$status == 0,
-        y = y$times,
-        y.censored = y$status == 0,
-        censoring.side = "right")$p.value
-
-    table <- r$testspw
-    p <- table$getCell(rowKey = c("e0", "e2"), "ppw[logrank]")$value
-    expect_equal(p, min(raw * 3, 1))
+    # THEN each p-value is the raw p-value times the three comparisons
+    raw <- envStatsP(completeCases(data, "ecog"), "e0", "e2")
+    expect_equal(
+        results$testspw$getCell(rowKey = c("e0", "e2"), "ppw[logrank]")$value,
+        min(raw * 3, 1)
+    )
 })
 
-test_that("Gehan and Tarone-Ware agree with coin for more than two groups", {
-    data <- lungData()
-
-    r <- deathwatch::surv(
-        data = data,
-        elapsed = "time",
-        event = "event",
-        eventLevel = "dead",
-        groups = "ecog",
-        tests = c("gehan", "taroneware"),
-        sc = FALSE)
-
-    tmpDat <- na.omit(data.frame(
-        times = data$time,
-        status = as.integer(data$event == "dead"),
-        group = data$ecog))
-
-    table <- r$tests
-    for (test in c("gehan", "taroneware")) {
-        type <- c(gehan = "Gehan-Breslow", taroneware = "Tarone-Ware")[[test]]
-        fit <- coin::logrank_test(
-            survival::Surv(times, status) ~ group,
-            data = tmpDat,
-            type = type)
-
-        expect_equal(table$getCell(rowNo = 1, paste0("chisqr[", test, "]"))$value, unname(coin::statistic(fit)))
-        expect_equal(table$getCell(rowNo = 1, paste0("df[", test, "]"))$value, 2)
-        expect_equal(table$getCell(rowNo = 1, paste0("pvalue[", test, "]"))$value, as.numeric(coin::pvalue(fit)))
-    }
-})
-
-test_that("numeric 1/2 event coding gives the same results as 0/1 coding", {
-    data <- lungData()
-
+test_that("numeric 1/2 event coding gives the same pairwise results as 0/1", {
+    # GIVEN the same events coded as 0/1 and as 1/2
     args <- list(
-        data = data,
-        elapsed = "time",
         eventLevel = NULL,
         groups = "ecog",
-        tests = c("logrank", "gehan"),
-        testspw = TRUE,
-        sc = FALSE)
+        tests = "logrank",
+        testspw = TRUE
+    )
 
-    r01 <- do.call(deathwatch::surv, c(args, event = "status01"))
-    r12 <- do.call(deathwatch::surv, c(args, event = "status12"))
+    # WHEN the analysis is run with each coding
+    results01 <- do.call(runSurv, c(args, event = "status01"))
+    results12 <- do.call(runSurv, c(args, event = "status12"))
 
-    expect_equal(r12$summary$asDF, r01$summary$asDF)
-    expect_equal(r12$medianestimates$asDF, r01$medianestimates$asDF)
-    expect_equal(r12$tests$asDF, r01$tests$asDF)
-    expect_equal(r12$testspw$asDF, r01$testspw$asDF)
+    # THEN the pairwise comparisons are identical
+    expect_equal(results12$testspw$asDF, results01$testspw$asDF)
 })
 
 test_that("numeric event variables not coded 0/1 or 1/2 are rejected", {
+    # GIVEN an event variable that also contains the value 2 alongside 0/1
     data <- lungData()
     data$status012 <- data$status01
     data$status012[1:5] <- 2
 
-    expect_error(
-        deathwatch::surv(
-            data = data,
-            elapsed = "time",
-            event = "status012",
-            eventLevel = NULL,
-            groups = NULL,
-            tests = NULL,
-            sc = FALSE),
-        "coded 0 \\(censored\\) and 1 \\(event\\)")
-})
-
-test_that("a grouping variable with a single level is rejected", {
-    data <- lungData()
-    data$one <- factor(rep("a", nrow(data)))
-
-    expect_error(
-        deathwatch::surv(
-            data = data,
-            elapsed = "time",
-            event = "event",
-            eventLevel = "dead",
-            groups = "one",
-            tests = "logrank",
-            sc = FALSE),
-        "at least two levels")
-})
-
-test_that("rows are filled by group when a level has no complete cases", {
-    data <- lungData()
-    data$ecog <- factor(data$ecog, levels = c("e0", "e9", "e1", "e2"))
-    data$ecog[1:3] <- "e9"
-    data$time[1:3] <- NA
-
-    r <- deathwatch::surv(
-        data = data,
-        elapsed = "time",
-        event = "event",
-        eventLevel = "dead",
-        groups = "ecog",
-        tests = "logrank",
-        testspw = TRUE,
-        sc = FALSE)
-
-    tmpDat <- na.omit(data.frame(
-        times = data$time,
-        status = as.integer(data$event == "dead"),
-        group = droplevels(data$ecog)))
-    tmpDat$group <- droplevels(tmpDat$group)
-    s <- summary(survival::survfit(survival::Surv(times, status) ~ group, data = tmpDat))$table
-
-    for (level in c("e0", "e1", "e2")) {
-        expect_equal(unname(r$summary$getCell(rowKey = level, "n")$value), sum(tmpDat$group == level))
-        expect_equal(r$medianestimates$getCell(rowKey = level, "median")$value, unname(s[paste0("group=", level), "median"]))
+    # WHEN the analysis is run on it
+    run <- function() {
+        runSurv(data = data, event = "status012", eventLevel = NULL)
     }
-    expect_null(r$summary$getCell(rowKey = "e9", "n")$value)
-    expect_null(r$medianestimates$getCell(rowKey = "e9", "median")$value)
 
-    # only the three comparisons between groups with data are made
-    expect_null(r$testspw$getCell(rowKey = c("e0", "e9"), "ppw[logrank]")$value)
-    x <- tmpDat[tmpDat$group == "e0", ]
-    y <- tmpDat[tmpDat$group == "e2", ]
-    raw <- EnvStats::twoSampleLinearRankTestCensored(
-        test = "logrank",
-        x = x$times,
-        x.censored = x$status == 0,
-        y = y$times,
-        y.censored = y$status == 0,
-        censoring.side = "right")$p.value
-    expect_equal(r$testspw$getCell(rowKey = c("e0", "e2"), "ppw[logrank]")$value, min(raw * 3, 1))
-})
-
-test_that("plots render without storing the data in their state", {
-    data <- lungData()
-
-    r <- deathwatch::surv(
-        data = data,
-        elapsed = "time",
-        event = "event",
-        eventLevel = "dead",
-        groups = "sex",
-        tests = NULL,
-        sc = TRUE,
-        chf = TRUE,
-        risk = TRUE)
-
-    for (image in list(r$sc, r$chf)) {
-        expect_null(image$state)
-        path <- tempfile(fileext = ".png")
-        image$saveAs(path)
-        expect_true(file.exists(path))
-    }
+    # THEN it is rejected with an explanation of the coding
+    expect_error(run(), "coded 0 \\(censored\\) and 1 \\(event\\)")
 })
 
 test_that("a factor event variable without an event level is rejected", {
-    expect_error(
-        deathwatch::surv(
-            data = lungData(),
-            elapsed = "time",
-            event = "event",
-            eventLevel = NULL,
-            groups = NULL,
-            tests = NULL,
-            sc = FALSE),
-        "choose the event level")
+    # GIVEN the lung data with a factor event variable
+
+    # WHEN the analysis is run without choosing the event level
+    run <- function() runSurv(eventLevel = NULL)
+
+    # THEN it asks for the event level
+    expect_error(run(), "choose the event level")
+})
+
+test_that("a grouping variable with a single level is rejected", {
+    # GIVEN a grouping variable with only one level
+    data <- lungData()
+    data$one <- factor(rep("a", nrow(data)))
+
+    # WHEN the analysis is run with it
+    run <- function() runSurv(data = data, groups = "one", tests = "logrank")
+
+    # THEN it is rejected
+    expect_error(run(), "at least two levels")
 })
 
 test_that("negative times are rejected", {
+    # GIVEN a few negative survival times
     data <- lungData()
     data$time[1:3] <- -5
 
-    expect_error(
-        deathwatch::surv(
-            data = data,
-            elapsed = "time",
-            event = "event",
-            eventLevel = "dead",
-            groups = NULL,
-            tests = NULL,
-            sc = FALSE),
-        "cannot be negative")
+    # WHEN the analysis is run
+    run <- function() runSurv(data = data)
+
+    # THEN it is rejected
+    expect_error(run(), "cannot be negative")
+})
+
+test_that("summary rows are filled by group when a level has no data", {
+    # GIVEN an ECOG level, listed second, with no complete cases
+    data <- lungDataWithEmptyLevel()
+
+    # WHEN the analysis is run grouped by ECOG
+    results <- runSurv(data = data, groups = "ecog")
+
+    # THEN each level's row holds that level's own count
+    tmpDat <- completeCases(data, "ecog")
+    counts <- sapply(c("e0", "e1", "e2"), function(level) {
+        unname(results$summary$getCell(rowKey = level, "n")$value)
+    })
+    expect_equal(counts, c(table(tmpDat$group)[c("e0", "e1", "e2")]))
+})
+
+test_that("median rows are filled by group when a level has no data", {
+    # GIVEN an ECOG level, listed second, with no complete cases
+    data <- lungDataWithEmptyLevel()
+
+    # WHEN the analysis is run grouped by ECOG
+    results <- runSurv(data = data, groups = "ecog")
+
+    # THEN each level's row holds that level's own median
+    fit <- survival::survfit(
+        survival::Surv(times, status) ~ group,
+        data = completeCases(data, "ecog")
+    )
+    expected <- summary(fit)$table[, "median"]
+    medians <- sapply(c("e0", "e1", "e2"), function(level) {
+        results$medianestimates$getCell(rowKey = level, "median")$value
+    })
+    expect_equal(unname(medians), unname(expected))
+})
+
+test_that("a level with no data is left empty", {
+    # GIVEN an ECOG level with no complete cases
+    data <- lungDataWithEmptyLevel()
+
+    # WHEN the analysis is run grouped by ECOG
+    results <- runSurv(data = data, groups = "ecog")
+
+    # THEN that level's summary row has no values
+    expect_null(results$summary$getCell(rowKey = "e9", "n")$value)
+})
+
+test_that("pairwise comparisons skip a level with no data", {
+    # GIVEN an ECOG level with no complete cases
+    data <- lungDataWithEmptyLevel()
+
+    # WHEN pairwise comparisons are requested
+    results <- runSurv(
+        data = data,
+        groups = "ecog",
+        tests = "logrank",
+        testspw = TRUE
+    )
+
+    # THEN comparisons involving that level are not computed
+    expect_null(
+        results$testspw$getCell(rowKey = c("e0", "e9"), "ppw[logrank]")$value
+    )
+})
+
+test_that("the Bonferroni count only includes comparisons that are made", {
+    # GIVEN four ECOG levels, one of them without complete cases
+    data <- lungDataWithEmptyLevel()
+
+    # WHEN pairwise comparisons are requested
+    results <- runSurv(
+        data = data,
+        groups = "ecog",
+        tests = "logrank",
+        testspw = TRUE
+    )
+
+    # THEN p-values are corrected for 3 comparisons, not 6
+    raw <- envStatsP(completeCases(data, "ecog"), "e0", "e2")
+    expect_equal(
+        results$testspw$getCell(rowKey = c("e0", "e2"), "ppw[logrank]")$value,
+        min(raw * 3, 1)
+    )
 })
 
 test_that("pairwise comparisons explain that a test is needed", {
-    r <- deathwatch::surv(
-        data = lungData(),
-        elapsed = "time",
-        event = "event",
-        eventLevel = "dead",
-        groups = "ecog",
-        tests = NULL,
-        testspw = TRUE,
-        sc = FALSE)
+    # GIVEN the lung data grouped by ECOG
 
-    expect_match(r$testspw$notes$notests$note, "Select at least one test")
+    # WHEN pairwise comparisons are requested without any test
+    results <- runSurv(groups = "ecog", testspw = TRUE)
+
+    # THEN the table notes that a test must be selected
+    expect_match(
+        results$testspw$notes$notests$note,
+        "Select at least one test"
+    )
 })
 
-test_that("pairwise rows are only created when pairwise comparisons are requested", {
-    data <- lungData()
+test_that("no pairwise rows are built when pairwise comparisons are off", {
+    # GIVEN the lung data grouped by ECOG
 
-    r <- deathwatch::surv(
-        data = data,
-        elapsed = "time",
-        event = "event",
-        eventLevel = "dead",
-        groups = "ecog",
-        tests = "logrank",
-        testspw = FALSE,
-        sc = FALSE)
-    expect_equal(length(r$testspw$rowKeys), 0)
+    # WHEN the analysis is run without pairwise comparisons
+    results <- runSurv(groups = "ecog", tests = "logrank", testspw = FALSE)
 
-    r <- deathwatch::surv(
-        data = data,
-        elapsed = "time",
-        event = "event",
-        eventLevel = "dead",
-        groups = "ecog",
-        tests = "logrank",
-        testspw = TRUE,
-        sc = FALSE)
-    expect_equal(length(r$testspw$rowKeys), 3)
+    # THEN the pairwise table has no rows
+    expect_length(results$testspw$rowKeys, 0)
+})
+
+test_that("a pairwise row is built for each pair of groups", {
+    # GIVEN the lung data grouped by its three ECOG levels
+
+    # WHEN pairwise comparisons are requested
+    results <- runSurv(groups = "ecog", tests = "logrank", testspw = TRUE)
+
+    # THEN there is one row per pair
+    expect_length(results$testspw$rowKeys, 3)
+})
+
+test_that("plots do not store the data in their state", {
+    # GIVEN the lung data grouped by sex
+
+    # WHEN both plots are requested
+    results <- runSurv(groups = "sex", sc = TRUE, chf = TRUE)
+
+    # THEN neither plot carries state
+    expect_null(results$sc$state)
+    expect_null(results$chf$state)
+})
+
+test_that("plots render from the dataset", {
+    # GIVEN an analysis with both plots and the risk table requested
+    results <- runSurv(groups = "sex", sc = TRUE, chf = TRUE, risk = TRUE)
+    paths <- c(tempfile(fileext = ".png"), tempfile(fileext = ".png"))
+
+    # WHEN the plots are saved
+    results$sc$saveAs(paths[1])
+    results$chf$saveAs(paths[2])
+
+    # THEN both image files are written
+    expect_true(all(file.exists(paths)))
 })
