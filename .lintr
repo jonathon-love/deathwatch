@@ -1,0 +1,11 @@
+linters: linters_with_defaults(
+    indentation_linter = indentation_linter(indent = 4L),
+    object_name_linter = object_name_linter(styles = c("camelCase", "symbols")),
+    quotes_linter = NULL,
+    line_length_linter = NULL,
+    return_linter = NULL
+  )
+exclusions: list(
+    "R/surv.h.R",
+    "R/00jmv.R"
+  )
